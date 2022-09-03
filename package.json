@@ -1,0 +1,14 @@
+{
+    "name": "Interplaytions",
+    "version": "0.0.1",
+    "description": "Interplatyions for web",
+    "source": "src/index.html",
+    "scripts": {
+        "start": "parcel",
+        "build": "parcel build"
+    },
+    "devDependencies": {
+        "parcel": "^2.7.0"
+    },
+    "keywords": []
+}
