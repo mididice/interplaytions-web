@@ -2,7 +2,7 @@
 
 ## start
 ```
-npm install --save-dev parcel
+npm install
 
-npx parcel src/index.html
+npx run dev
 ```
