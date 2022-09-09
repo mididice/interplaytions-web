@@ -18,7 +18,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  init(): void {
+  create(): void {
     let tempLevel = CONST.levels[CONST.currentLevel];
 
     // set the width and height of the current level
