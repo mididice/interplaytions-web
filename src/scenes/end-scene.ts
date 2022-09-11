@@ -12,6 +12,7 @@ export class EndScene extends Phaser.Scene {
   private homeOffButton: Phaser.GameObjects.Image;
   private restartOnButton: Phaser.GameObjects.Image;
   private restartOffButton: Phaser.GameObjects.Image;
+  private prevY: number;
 
   constructor() {
     super({
@@ -21,6 +22,8 @@ export class EndScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('background', './assets/images/scene/landing-page-grid.png');
+    this.load.image('badge-1', './assets/images/scene/badge-1.png');
+    this.load.image('badge-2', './assets/images/scene/badge-2.png');
     this.load.image('score-bg', './assets/images/scene/score-bg.png');
     this.load.image('restart-off', './assets/images/scene/restart-off.png');
     this.load.image('restart-on', './assets/images/scene/restart-on.png');
@@ -29,8 +32,11 @@ export class EndScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.prevY = 1;
     this.add.image(0, 0, 'background').setOrigin(0, 0);
-    let titleRectangle = this.add.image(67, 300, 'score-bg').setOrigin(0).setScrollFactor(0);
+    this.add.image(67, 35, 'badge-1').setOrigin(0).setScrollFactor(0);
+    this.add.image(67, 100, 'badge-2').setOrigin(0).setScrollFactor(0);
+    this.add.image(67, 300, 'score-bg').setOrigin(0).setScrollFactor(0);
     this.createScore(200, 400, 1234);
     this.homeOnButton = this.createButton(83, 600, 'home-on', true);
     this.homeOffButton = this.createButton(83, 600, 'home-off', false);
@@ -56,14 +62,29 @@ export class EndScene extends Phaser.Scene {
   }
 
   private handleInput(): void { 
+    let dy = 0;
     if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
-      this.turnOnOff(true);
-    } else if (Phaser.Input.Keyboard.JustUp(this.cursors.down)) {
+      dy -= 2;
+    } else if (Phaser.Input.Keyboard.JustUp(this.cursors.up)) {
+      dy += 2;
+    }
+    if (dy !== 0) {
+      this.prevY = this.prevY + dy;
+    }
+    if (this.prevY < 0) {
+      this.prevY = -1;
       this.turnOnOff(false);
+    } else {
+      this.prevY = 1;
+      this.turnOnOff(true);
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
-      this.scene.start('StartScene');
+      if (this.prevY === 1) {
+        this.scene.start('BootScene');
+      } else if (this.prevY === -1) {
+        this.scene.start('StartScene');
+      }
     }
   }
 
