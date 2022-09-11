@@ -20,22 +20,22 @@ export class EndScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image('background', './assets/images/landing-page-grid.png');
-    this.load.image('score-bg', './assets/images/score-bg.png');
-    this.load.image('restart-off', './assets/images/restart-off.png');
-    this.load.image('restart-on', './assets/images/restart-on.png');
-    this.load.image('home-off', './assets/images/home-off.png');
-    this.load.image('home-on', './assets/images/home-on.png');
+    this.load.image('background', './assets/images/scene/landing-page-grid.png');
+    this.load.image('score-bg', './assets/images/scene/score-bg.png');
+    this.load.image('restart-off', './assets/images/scene/restart-off.png');
+    this.load.image('restart-on', './assets/images/scene/restart-on.png');
+    this.load.image('home-off', './assets/images/scene/home-off.png');
+    this.load.image('home-on', './assets/images/scene/home-on.png');
   }
 
   create(): void {
-    this.background = this.add.image(0, 0, 'background');
-    let titleRectangle = this.add.image(10, 100, 'score-bg').setOrigin(0).setScrollFactor(0);
-    this.createScore(10, 200, 1234);
-    this.homeOnButton = this.createButton(10, 400, 'home-on', true);
-    this.homeOffButton = this.createButton(10, 400, 'home-off', false);
-    this.restartOnButton = this.createButton(10, 500, 'restart-on', false);
-    this.restartOffButton = this.createButton(10, 500, 'restart-off', true);
+    this.add.image(0, 0, 'background').setOrigin(0, 0);
+    let titleRectangle = this.add.image(67, 300, 'score-bg').setOrigin(0).setScrollFactor(0);
+    this.createScore(200, 400, 1234);
+    this.homeOnButton = this.createButton(83, 600, 'home-on', true);
+    this.homeOffButton = this.createButton(83, 600, 'home-off', false);
+    this.restartOnButton = this.createButton(83, 700, 'restart-on', false);
+    this.restartOffButton = this.createButton(83, 700, 'restart-off', true);
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.actionKey = this.input.keyboard.addKey(

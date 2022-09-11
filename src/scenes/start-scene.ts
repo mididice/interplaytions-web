@@ -7,11 +7,15 @@ export class StartScene extends Phaser.Scene {
   private actionKey: Phaser.Input.Keyboard.Key;
   private activatedBlockId: number;
 
+  private layer: Phaser.GameObjects.Container;
   private background: Phaser.GameObjects.Image;
   private startOnButton: Phaser.GameObjects.Image;
   private startOffButton: Phaser.GameObjects.Image;
   private howtoplayOnButton: Phaser.GameObjects.Image;
   private howtoplayOffButton: Phaser.GameObjects.Image;
+
+  private bgm: Phaser.Sound.BaseSound;
+  private prevY: number;
 
   constructor() {
     super({
@@ -27,15 +31,23 @@ export class StartScene extends Phaser.Scene {
     this.load.image('start-off', './assets/images/scene/start-off.png');
     this.load.image('start-on', './assets/images/scene/start-on.png');
     this.load.image('title-rectangle', './assets/images/scene/title-rectangle.png');
+    this.load.audio('interplaytions_bgm', './assets/sound/interplaytions_bgm.wav');
   }
 
   create(): void {
-    this.background = this.add.image(0, 0, 'background');
-    let titleRectangle = this.add.image(10, 100, 'title-rectangle').setOrigin(0).setScrollFactor(0);
-    this.startOnButton = this.createButton(10, 400, 'start-on', true);
-    this.startOffButton = this.createButton(10, 400, 'start-off', false);
-    this.howtoplayOnButton = this.createButton(10, 500, 'howtoplay-on', false);
-    this.howtoplayOffButton = this.createButton(10, 500, 'howtoplay-off', true);
+    this.prevY = 0;
+    this.bgm = this.sound.add('interplaytions_bgm');
+    this.bgm.play();
+    this.add.image(0, 0, 'background').setOrigin(0, 0);
+    let titleRectangle = this.add.image(67, 300, 'title-rectangle').setOrigin(0).setScrollFactor(0);
+    this.startOnButton = this.createButton(83, 600, 'start-on', true);
+    this.startOffButton = this.createButton(83, 600, 'start-off', false);
+    this.howtoplayOnButton = this.createButton(83, 700, 'howtoplay-on', false);
+    this.howtoplayOffButton = this.createButton(83, 700, 'howtoplay-off', true);
+    this.startOnButton.setInteractive();
+    this.startOffButton.setInteractive();
+    this.howtoplayOnButton.setInteractive();
+    this.howtoplayOffButton.setInteractive();
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.actionKey = this.input.keyboard.addKey(
@@ -52,14 +64,32 @@ export class StartScene extends Phaser.Scene {
   }
 
   private handleInput(): void { 
+    let dy = 0;
     if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
+      dy -= 1;
+    } else if (Phaser.Input.Keyboard.JustUp(this.cursors.up)) {
+      dy += 1;
+    }
+    console.log(this.prevY);
+    if (dy !== 0) {
+      this.prevY = this.prevY + dy;
+    }
+    if (this.prevY < -1) {
+      this.prevY = 1;
+    } else if (this.prevY > 1) {
+      this.prevY = -1;
+    } else {
+      this.prevY = dy;
+    }
+    if (this.prevY === -1) {
       this.turnOnOff(true);
-    } else if (Phaser.Input.Keyboard.JustUp(this.cursors.down)) {
+    } else if (this.prevY === 1) {
       this.turnOnOff(false);
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       this.scene.start('BootScene');
+      this.bgm.stop();
     }
   }
 
