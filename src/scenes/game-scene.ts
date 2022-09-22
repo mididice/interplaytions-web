@@ -11,6 +11,8 @@ export class GameScene extends Phaser.Scene {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private actionKey: Phaser.Input.Keyboard.Key;
   private activatedBlockId: number;
+  private timeTxt: Phaser.GameObjects.Text;
+  private timeEvent: Phaser.Time.TimerEvent;
 
   constructor() {
     super({
@@ -18,73 +20,34 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  preload(): void {
+    this.load.image('title', './assets/images/scene/title.png');
+  }
+
+
   create(): void {
-    let tempLevel = CONST.levels[CONST.currentLevel];
+    this.cameras.main.setBackgroundColor('#121212');
 
-    // set the width and height of the current level
-    this.currentLevelWidth = tempLevel.width;
-    this.currentLevelHeight = tempLevel.height;
+    this.add.image(45, 45, 'title').setOrigin(0).setScrollFactor(0);
+    this.add.text(1071,45, 'TURN', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
+        // setFontStyle('BauhausStd-Bold').
+        setOrigin(0);
+    this.add.text(1171, 45, 'TIME LEFT', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
+        setOrigin(0);
+    this.add.text(1371, 45, 'YOUR SCORE', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+        setOrigin(0);
 
-    // loop through current level 2D-number-array and create a 1D-block-array
-    for (let y = 0; y < this.currentLevelHeight; y++) {
-      for (let x = 0; x < this.currentLevelWidth; x++) {
-        let blockType = tempLevel.data[y][x];
-        this.currentLevelArray.push(
-          new Block({
-            scene: this,
-            x: x * CONST.tileSize,
-            y: y * CONST.tileSize,
-            texture: 'block',
-            type: blockType
-          })
-        );
-      }
-    }
-
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.actionKey = this.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.SPACE
-    );
-
-    this.cursor = new Cursor({
-      scene: this,
-      x: CONST.levels[CONST.currentLevel].cursorStart[0] * CONST.tileSize,
-      y: CONST.levels[CONST.currentLevel].cursorStart[1] * CONST.tileSize,
-      texture: 'cursor',
-      cursorStartPosition: CONST.levels[CONST.currentLevel].cursorStart
-    });
+    this.timeTxt = this.add.text(1171, 77, '', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+        setOrigin(0);
+    this.timeEvent = this.time.addEvent({delay: 100000000 ,callbackScope: this, loop: true})
   }
 
   update(): void {
-    for (let y = this.currentLevelHeight - 1; y >= 0; y--) {
-      for (let x = this.currentLevelWidth - 1; x >= 0; x--) {
-        let block = this.currentLevelArray[this.getBlockIndex(x, y)];
-
-        if (block.getDead()) {
-          block.update();
-        } else {
-          let upperBlock;
-          if (y > 0) {
-            upperBlock = this.currentLevelArray[this.getBlockIndex(x, y - 1)];
-          } else {
-            upperBlock = undefined;
-          }
-          if (block.getType() === 0 && upperBlock !== undefined) {
-            if (upperBlock.getType() > 1) {
-              this.swapTwoBlocks(
-                this.getBlockIndex(x, y),
-                this.getBlockIndex(x, y - 1)
-              );
-            }
-          }
-        }
-      }
-    }
-
-    this.checkMatches();
-
-    this.handleInput();
+    let minutes = this.timeEvent.getProgress().toString().substring(2, 4);
+    let second = this.timeEvent.getProgress().toString().substring(5, 7);
+    this.timeTxt.setText(minutes+":"+second);
   }
+
 
   private handleInput(): void {
     let oldX = this.cursor.getX();
