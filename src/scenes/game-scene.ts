@@ -1,6 +1,10 @@
 import { CONST } from '../const/const';
 import { Block } from '../objects/block';
 import { Cursor } from '../objects/cursor';
+import { Api } from '../objects/Api';
+import { Midi } from '@tonejs/midi'
+import * as Tone from 'tone'
+
 
 export class GameScene extends Phaser.Scene {
   private currentLevelArray: Block[] = [];
@@ -11,6 +15,7 @@ export class GameScene extends Phaser.Scene {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private actionKey: Phaser.Input.Keyboard.Key;
   private activatedBlockId: number;
+  private api: Api;
 
   constructor() {
     super({
@@ -53,6 +58,8 @@ export class GameScene extends Phaser.Scene {
       texture: 'cursor',
       cursorStartPosition: CONST.levels[CONST.currentLevel].cursorStart
     });
+
+    this.api = new Api();
   }
 
   update(): void {
@@ -189,5 +196,42 @@ export class GameScene extends Phaser.Scene {
     }
 
     return false;
+  }
+
+  /**
+   * 선택하면 서버를 호출하여 미디 파일을 받아 연주합니다.
+   * @param sequence : 순서
+   * @param index : 선택한 미디 인덱스
+   */
+  private chooseMidi(sequence: number, index: number): void {
+    this.api.connect(sequence, index)
+    .then((res) => res.json())
+    .then(result => {
+      this.playMidi(result);
+    });
+  }
+
+  
+  /**
+   * 서버에 호출하여 지금까지 생성한 미디파일을 합쳐서 연주합니다.
+   */
+   private theEnd(): void {
+    this.api.combine()
+    .then((res) => res.json())
+    .then(result => {
+      this.playMidi(result);
+    });
+  }
+
+
+  private async playMidi(url : string): Promise<void> {
+    const midi = await Midi.fromUrl(url)
+    const now = Tone.now() + 0.5
+		midi.tracks.forEach(track => {
+      const synth = new Tone.PluckSynth().toDestination();
+			track.notes.forEach(note => {
+			  synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
+			})
+		})
   }
 }
