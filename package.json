@@ -4,17 +4,20 @@
   "description": "Interplaytions in TypeScript",
   "keywords": [],
   "devDependencies": {
+    "@tonejs/midi": "2.0.28",
+    "@types/lodash": "4.14.168",
     "expose-loader": "4.0.0",
+    "tone": "14.7.77",
     "ts-loader": "9.3.1",
     "typescript": "4.3.5",
     "webpack": "5.74.0",
     "webpack-cli": "4.10.0",
-    "webpack-dev-server": "4.9.3",
-    "@types/lodash": "4.14.168"
+    "webpack-dev-server": "4.9.3"
   },
   "dependencies": {
-    "phaser": "3.60.0-beta.9",
-    "lodash": "4.17.20"
+    "http-proxy-middleware": "^2.0.6",
+    "lodash": "4.17.20",
+    "phaser": "3.60.0-beta.9"
   },
   "scripts": {
     "dev": "webpack --mode development && webpack serve --mode development"

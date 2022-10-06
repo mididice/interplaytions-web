@@ -24,7 +24,17 @@ module.exports = {
     static: path.resolve(__dirname, './'),
     host: 'localhost',
     port: 8080,
-    open: false
+    open: false,
+    proxy: {
+      '/api/': {
+        target: 'http://localhost:8000',
+        chagneOrigin: true,
+      },
+      '/code/': {
+        target: 'http://localhost:2017',
+        chagneOrigin: true,
+      }
+    }
   },
   resolve: {
     extensions: ['.ts', '.js']

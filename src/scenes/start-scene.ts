@@ -1,4 +1,3 @@
-
 export class StartScene extends Phaser.Scene {
   private currentLevelWidth: number;
   private currentLevelHeight: number;
@@ -21,6 +20,7 @@ export class StartScene extends Phaser.Scene {
   private bgm: Phaser.Sound.BaseSound;
   private prevY: number;
   private howtoplayStep: number;
+
   constructor() {
     super({
       key: 'StartScene'
