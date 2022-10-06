@@ -47,6 +47,8 @@ export class GameScene extends Phaser.Scene {
     this.timeEvent = this.time.addEvent({delay: 100000000 ,callbackScope: this, loop: true})
 
     this.api = new Api();
+
+    
   }
 
   update(): void {

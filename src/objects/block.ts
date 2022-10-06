@@ -28,7 +28,7 @@ export class Block extends Phaser.GameObjects.Sprite {
 
   private initSprite() {
     this.setFrame(this.blockType);
-    this.setOrigin(0, 0);
+    // this.setOrigin(0, 0);
   }
 
   public getType(): number {
