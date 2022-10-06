@@ -48,7 +48,25 @@ export class GameScene extends Phaser.Scene {
 
     this.api = new Api();
 
-    
+    let tempLevel = CONST.levels[CONST.currentLevel];
+
+    this.currentLevelWidth = tempLevel.width;
+    this.currentLevelHeight = tempLevel.height;
+
+    for (let y = 0; y < this.currentLevelHeight; y++) {
+      for (let x = 0; x < this.currentLevelWidth; x++) {
+        let blockType = tempLevel.data[y][x];
+        this.currentLevelArray.push(
+            new Block({
+              scene: this,
+              x: (x * CONST.tileSize) + 365 + 10,
+              y: (y * CONST.tileSize) + 229 + 10,
+              texture: 'block',
+              type: blockType
+            })
+        )
+      }
+    }
   }
 
   update(): void {
