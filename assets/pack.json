@@ -4,10 +4,10 @@
       {
         "type": "spritesheet",
         "key": "block",
-        "url": "./assets/sprites/block.png",
+        "url": "./assets/sprites/rectangle-tile.png",
         "frameConfig": {
-          "frameWidth": 16,
-          "frameHeight": 16
+          "frameWidth": 90,
+          "frameHeight": 90
         }
       },
       {
