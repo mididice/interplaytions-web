@@ -44,7 +44,7 @@ export class GameScene extends Phaser.Scene {
 
     this.timeTxt = this.add.text(1171, 77, '', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
         setOrigin(0);
-    this.timeEvent = this.time.addEvent({delay: 100000000 ,callbackScope: this, loop: true})
+    this.timeEvent = this.time.addEvent({delay: 10000000, callbackScope: this, loop: true})
 
     this.api = new Api();
 
@@ -70,9 +70,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(): void {
-    let minutes = this.timeEvent.getProgress().toString().substring(2, 4);
-    let second = this.timeEvent.getProgress().toString().substring(5, 7);
-    this.timeTxt.setText(minutes+":"+second);
+    this.countTimer();
+  }
+
+  private countTimer(): void {
+    let elapsedTime = this.timeEvent.getElapsedSeconds();
+    let minute = Math.floor(elapsedTime / 60);
+    let second = Math.floor(elapsedTime - (minute * 60));
+    
+    if (second < 10) {
+      this.timeTxt.setText("0"+minute+":0"+second);
+      return;
+    }
+    this.timeTxt.setText("0"+minute+":"+second);
   }
 
 
