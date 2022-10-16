@@ -4,10 +4,10 @@
       {
         "type": "spritesheet",
         "key": "block",
-        "url": "./assets/sprites/block.png",
+        "url": "./assets/sprites/cube.png",
         "frameConfig": {
-          "frameWidth": 16,
-          "frameHeight": 16
+          "frameWidth": 92,
+          "frameHeight": 92
         }
       },
       {

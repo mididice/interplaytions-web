@@ -34,6 +34,7 @@ module.exports = {
       '/code/': {
         target: 'http://localhost:2017',
         changeOrigin: true,
+
       }
     }
   },

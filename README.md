@@ -4,5 +4,5 @@
 ```
 npm install
 
-npx run dev
+npm run dev
 ```

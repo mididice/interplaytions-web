@@ -1,6 +1,10 @@
 import { CONST } from '../const/const';
 import { Block } from '../objects/block';
 import { Cursor } from '../objects/cursor';
+import { Api } from '../objects/Api';
+import { Midi } from '@tonejs/midi'
+import * as Tone from 'tone'
+
 
 export class GameScene extends Phaser.Scene {
   private currentLevelArray: Block[] = [];
@@ -11,79 +15,131 @@ export class GameScene extends Phaser.Scene {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private actionKey: Phaser.Input.Keyboard.Key;
   private activatedBlockId: number;
-
+  private timeTxt: Phaser.GameObjects.Text;
+  private timeEvent: Phaser.Time.TimerEvent;
+  private api: Api;
+  private activatedAnimation: Phaser.GameObjects.Sprite;
+  
   constructor() {
     super({
       key: 'GameScene'
     });
   }
 
-  init(): void {
+  preload(): void {
+    this.load.image('title', './assets/images/scene/title.png');                
+    this.load.spritesheet("animation1", "./assets/images/ani/01_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation2", "./assets/images/ani/02_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation3", "./assets/images/ani/03_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation4", "./assets/images/ani/04_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation5", "./assets/images/ani/05_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation6", "./assets/images/ani/06_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation7", "./assets/images/ani/07_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation8", "./assets/images/ani/08_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation9", "./assets/images/ani/09_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation10", "./assets/images/ani/10_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation11", "./assets/images/ani/11_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation12", "./assets/images/ani/12_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb1", "./assets/images/ani/01_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb2", "./assets/images/ani/02_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb3", "./assets/images/ani/03_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb4", "./assets/images/ani/04_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb5", "./assets/images/ani/05_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb6", "./assets/images/ani/06_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb7", "./assets/images/ani/07_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb8", "./assets/images/ani/08_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb9", "./assets/images/ani/09_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb10", "./assets/images/ani/10_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb11", "./assets/images/ani/11_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb12", "./assets/images/ani/12_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+
+  }
+
+
+  create(): void {
+    this.cameras.main.setBackgroundColor('#121212');
+
+    this.add.image(45, 45, 'title').setOrigin(0).setScrollFactor(0);
+    this.add.text(1071,45, 'TURN', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
+        // setFontStyle('BauhausStd-Bold').
+        setOrigin(0);
+    this.add.text(1171, 45, 'TIME LEFT', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
+        setOrigin(0);
+    this.add.text(1371, 45, 'YOUR SCORE', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+        setOrigin(0);
+
+    this.timeTxt = this.add.text(1171, 77, '', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+        setOrigin(0);
+    this.timeEvent = this.time.addEvent({delay: 10000000, callbackScope: this, loop: true})
+
+    this.api = new Api();
+
     let tempLevel = CONST.levels[CONST.currentLevel];
 
-    // set the width and height of the current level
     this.currentLevelWidth = tempLevel.width;
     this.currentLevelHeight = tempLevel.height;
 
-    // loop through current level 2D-number-array and create a 1D-block-array
     for (let y = 0; y < this.currentLevelHeight; y++) {
       for (let x = 0; x < this.currentLevelWidth; x++) {
         let blockType = tempLevel.data[y][x];
         this.currentLevelArray.push(
-          new Block({
-            scene: this,
-            x: x * CONST.tileSize,
-            y: y * CONST.tileSize,
-            texture: 'block',
-            type: blockType
-          })
-        );
+            new Block({
+              scene: this,
+              x: (x * CONST.tileSize) + 365,
+              y: (y * CONST.tileSize) + 229,
+              texture: 'block',
+              type: blockType
+            })
+        )
       }
     }
-
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.actionKey = this.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.SPACE
-    );
-
-    this.cursor = new Cursor({
-      scene: this,
-      x: CONST.levels[CONST.currentLevel].cursorStart[0] * CONST.tileSize,
-      y: CONST.levels[CONST.currentLevel].cursorStart[1] * CONST.tileSize,
-      texture: 'cursor',
-      cursorStartPosition: CONST.levels[CONST.currentLevel].cursorStart
-    });
   }
 
   update(): void {
-    for (let y = this.currentLevelHeight - 1; y >= 0; y--) {
-      for (let x = this.currentLevelWidth - 1; x >= 0; x--) {
-        let block = this.currentLevelArray[this.getBlockIndex(x, y)];
+    this.countTimer();
+  }
 
-        if (block.getDead()) {
-          block.update();
-        } else {
-          let upperBlock;
-          if (y > 0) {
-            upperBlock = this.currentLevelArray[this.getBlockIndex(x, y - 1)];
-          } else {
-            upperBlock = undefined;
-          }
-          if (block.getType() === 0 && upperBlock !== undefined) {
-            if (upperBlock.getType() > 1) {
-              this.swapTwoBlocks(
-                this.getBlockIndex(x, y),
-                this.getBlockIndex(x, y - 1)
-              );
-            }
-          }
-        }
-      }
+  private countTimer(): void {
+    let elapsedTime = this.timeEvent.getElapsedSeconds();
+    let minute = Math.floor(elapsedTime / 60);
+    let second = Math.floor(elapsedTime - (minute * 60));
+    
+    if (second < 10) {
+      this.timeTxt.setText("0"+minute+":0"+second);
+      return;
     }
+    this.timeTxt.setText("0"+minute+":"+second);
+  }
 
-    this.checkMatches();
+  /**
+   * 애니메이션 실행
+   * @param isTile 타일 or 경로 애니메이션인지 선택
+   * @param index 타일인덱스
+   * @param x 좌표값 x
+   * @param y 좌표값 y
+   */
+  private playAnimation(isTile: boolean, index: number, x: number, y: number): Phaser.GameObjects.Sprite {
+    let animationTarget = "animation";
+    if (!isTile) {
+      animationTarget = "animationb";
+    }
+    this.anims.create({
+      key: "rolling"+index,
+      frameRate: 59,
+      frames: this.anims.generateFrameNumbers(animationTarget+index, { start: 0, end: 58 }),
+      repeat: -1
+    });
+    let tile: Phaser.GameObjects.Sprite;
+    tile = this.add.sprite(x, y, "rolling"+index);
+    tile.play("rolling"+index);
+    return tile;
+  }
 
-    this.handleInput();
+  /**
+   * 애니메이션 종료
+   */
+  private stopAnimation(tile: Phaser.GameObjects.Sprite): void {
+    tile.stop();
   }
 
   private handleInput(): void {
@@ -189,5 +245,42 @@ export class GameScene extends Phaser.Scene {
     }
 
     return false;
+  }
+
+  /**
+   * 선택하면 서버를 호출하여 미디 파일을 받아 연주합니다.
+   * @param sequence : 순서
+   * @param index : 선택한 미디 인덱스
+   */
+  private chooseMidi(sequence: number, index: number): void {
+    this.api.connect(sequence, index)
+    .then((res) => res.json())
+    .then(result => {
+      this.playMidi(result);
+    });
+  }
+
+  
+  /**
+   * 서버에 호출하여 지금까지 생성한 미디파일을 합쳐서 연주합니다.
+   */
+   private theEnd(): void {
+    this.api.combine()
+    .then((res) => res.json())
+    .then(result => {
+      this.playMidi(result);
+    });
+  }
+
+
+  private async playMidi(url : string): Promise<void> {
+    const midi = await Midi.fromUrl(url)
+    const now = Tone.now() + 0.5
+		midi.tracks.forEach(track => {
+      const synth = new Tone.PluckSynth().toDestination();
+			track.notes.forEach(note => {
+			  synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
+			})
+		})
   }
 }
