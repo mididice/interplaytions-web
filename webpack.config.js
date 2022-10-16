@@ -29,11 +29,11 @@ module.exports = {
     proxy: {
       '/api/': {
         target: 'http://localhost:8000',
-        chagneOrigin: true,
+        changeOrigin: true,
       },
       '/code/': {
         target: 'http://localhost:2017',
-        chagneOrigin: true,
+        changeOrigin: true,
       }
     }
   },
