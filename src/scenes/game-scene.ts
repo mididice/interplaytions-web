@@ -16,6 +16,7 @@ export class GameScene extends Phaser.Scene {
   private actionKey: Phaser.Input.Keyboard.Key;
   private activatedBlockId: number;
   private timeTxt: Phaser.GameObjects.Text;
+  private timeLeft: integer;
   private timeEvent: Phaser.Time.TimerEvent;
   private api: Api;
   private activatedAnimation: Phaser.GameObjects.Sprite;
@@ -52,7 +53,10 @@ export class GameScene extends Phaser.Scene {
     this.load.spritesheet("animationb10", "./assets/images/ani/10_b_animation.png", { frameWidth: 92, frameHeight: 92 });
     this.load.spritesheet("animationb11", "./assets/images/ani/11_b_animation.png", { frameWidth: 92, frameHeight: 92 });
     this.load.spritesheet("animationb12", "./assets/images/ani/12_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-
+    this.load.image('gameover1', './assets/images/scene/gameover-popup-connected.png');                
+    this.load.image('gameover2', './assets/images/scene/gameover-popup-non-left.png');                
+    this.load.image('gameover3', './assets/images/scene/gameover-popup-timeup.png');
+    this.timeLeft = 300;
   }
 
 
@@ -101,14 +105,18 @@ export class GameScene extends Phaser.Scene {
 
   private countTimer(): void {
     let elapsedTime = this.timeEvent.getElapsedSeconds();
-    let minute = Math.floor(elapsedTime / 60);
-    let second = Math.floor(elapsedTime - (minute * 60));
-    
-    if (second < 10) {
-      this.timeTxt.setText("0"+minute+":0"+second);
-      return;
-    }
-    this.timeTxt.setText("0"+minute+":"+second);
+    let currentTime = this.timeLeft - Math.floor(elapsedTime);
+    let minute = Math.floor(currentTime / 60);
+    let second = Math.floor(currentTime - (minute * 60));
+    if (currentTime <= 0) {
+      minute = 0;
+      second = 0;
+      this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
+      this.scene.stop("game-scene");
+      // TODO : 점수 계산, 씬이동
+    } 
+    this.timeTxt.setText(minute.toString().padStart(2, '0')+":"+second.toString().padStart(2, '0'));
+  
   }
 
   /**
