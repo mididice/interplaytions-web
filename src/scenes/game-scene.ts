@@ -78,6 +78,8 @@ export class GameScene extends Phaser.Scene {
 
     this.api = new Api();
 
+    this.cursors = this.input.keyboard.createCursorKeys();
+
     let tempLevel = CONST.levels[CONST.currentLevel];
 
     this.currentLevelWidth = tempLevel.width;
@@ -97,10 +99,19 @@ export class GameScene extends Phaser.Scene {
         )
       }
     }
+
+    this.cursor = new Cursor({
+      scene: this,
+      x: CONST.levels[CONST.currentLevel].cursorStart[0] * CONST.tileSize,
+      y: CONST.levels[CONST.currentLevel].cursorStart[1] * CONST.tileSize,
+      texture: 'cursor',
+      cursorStartPosition: CONST.levels[CONST.currentLevel].cursorStart
+    });
   }
 
   update(): void {
     this.countTimer();
+    this.handleInput();
   }
 
   private countTimer(): void {
@@ -155,6 +166,8 @@ export class GameScene extends Phaser.Scene {
     let oldY = this.cursor.getY();
     let dx = 0;
     let dy = 0;
+    let width = CONST.levels[CONST.currentLevel].width;
+    let height = CONST.levels[CONST.currentLevel].height;
 
     if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) {
       dx = 1;
@@ -174,24 +187,8 @@ export class GameScene extends Phaser.Scene {
       let newX = oldX + dx;
       let newY = oldY + dy;
 
-      if (this.getBlockType(newX, newY) !== 1) {
-        this.cursor.moveTo(newX, newY);
-
-        if (this.cursor.isActivated()) {
-          this.swapTwoBlocks(
-            this.getBlockIndex(oldX, oldY),
-            this.getBlockIndex(newX, newY)
-          );
-
-          this.cursor.setActivated();
-        }
-      }
-    }
-
-    if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
-      if (this.getBlockType(this.cursor.getX(), this.cursor.getY()) !== 0) {
-        this.cursor.setActivated();
-      }
+      if (newX < 0 || newX >= width || newY < 0 || newY >= height) return;
+      this.cursor.moveTo(newX, newY);
     }
   }
 

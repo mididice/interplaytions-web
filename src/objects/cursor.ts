@@ -31,7 +31,7 @@ export class Cursor extends Phaser.GameObjects.Image {
 
   public moveTo(x: number, y: number): void {
     this.currentPosition = [x, y];
-    this.setPosition(x * CONST.tileSize, y * CONST.tileSize);
+    this.setPosition(x * CONST.tileSize + 365, y * CONST.tileSize + 229);
   }
 
   public getX(): number {

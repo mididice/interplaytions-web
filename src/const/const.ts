@@ -5,7 +5,7 @@ export let CONST = {
     {
       width: 12,
       height: 6,
-      cursorStart: [3, 3],
+      cursorStart: [0, 0],
       data: [
         [0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
         [0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 5, 0],
