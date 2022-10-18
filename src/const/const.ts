@@ -1,6 +1,6 @@
 export let CONST = {
   currentLevel: 0,
-  tileSize: 101,
+  tileSize: 100,
   levels: [
     {
       width: 12,

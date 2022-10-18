@@ -16,7 +16,7 @@ export class GameScene extends Phaser.Scene {
   private actionKey: Phaser.Input.Keyboard.Key;
   private activatedBlockId: number;
   private timeTxt: Phaser.GameObjects.Text;
-  private timeLeft: integer;
+  private timeLeft: number;
   private timeEvent: Phaser.Time.TimerEvent;
   private api: Api;
   private activatedAnimation: Phaser.GameObjects.Sprite;
@@ -78,8 +78,6 @@ export class GameScene extends Phaser.Scene {
 
     this.api = new Api();
 
-    this.cursors = this.input.keyboard.createCursorKeys();
-
     let tempLevel = CONST.levels[CONST.currentLevel];
 
     this.currentLevelWidth = tempLevel.width;
@@ -100,6 +98,10 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.actionKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
     this.cursor = new Cursor({
       scene: this,
       x: CONST.levels[CONST.currentLevel].cursorStart[0] * CONST.tileSize,
@@ -139,18 +141,18 @@ export class GameScene extends Phaser.Scene {
    */
   private playAnimation(isTile: boolean, index: number, x: number, y: number): Phaser.GameObjects.Sprite {
     let animationTarget = "animation";
-    if (!isTile) {
+    if (isTile === false) {
       animationTarget = "animationb";
     }
     this.anims.create({
-      key: "rolling"+index,
+      key: animationTarget+index,
       frameRate: 59,
       frames: this.anims.generateFrameNumbers(animationTarget+index, { start: 0, end: 58 }),
       repeat: -1
     });
     let tile: Phaser.GameObjects.Sprite;
-    tile = this.add.sprite(x, y, "rolling"+index);
-    tile.play("rolling"+index);
+    tile = this.add.sprite(x, y, animationTarget+index);
+    tile.play(animationTarget+index);
     return tile;
   }
 
@@ -174,21 +176,35 @@ export class GameScene extends Phaser.Scene {
     } else if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) {
       dx = -1;
     }
-
-    if (!this.cursor.isActivated()) {
-      if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) {
-        dy = -1;
-      } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
-        dy = 1;
-      }
+    if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) {
+      dy = -1;
+    } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
+      dy = 1;
     }
 
     if (dx !== 0 || dy !== 0) {
       let newX = oldX + dx;
       let newY = oldY + dy;
-
       if (newX < 0 || newX >= width || newY < 0 || newY >= height) return;
+      if (this.cursor.isActivated()) {
+        const tileIndex = this.getBlockType(newX, newY);
+        const selected = this.cursor.getSelected();
+        if (tileIndex === selected) {
+          this.playAnimation(true, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
+        } else {
+          this.playAnimation(false, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
+        }
+      }
       this.cursor.moveTo(newX, newY);
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
+      const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
+      if (tileIndex !== 0) {
+        this.cursor.setActivated();
+        this.cursor.setSelected(tileIndex);
+        this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
+      }
     }
   }
 
