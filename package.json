@@ -20,7 +20,9 @@
     "phaser": "3.60.0-beta.9"
   },
   "scripts": {
-    "dev": "webpack --mode development && webpack serve --mode development"
+    "build": "webpack --mode production --config ./webpack.production.config.js",
+    "dev": "webpack --mode development && webpack serve --mode development",
+    "start": "webpack-dev-server --progress --mode development"
   },
   "repository": {
     "type": "git",

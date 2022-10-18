@@ -20,24 +20,6 @@ module.exports = {
       }
     ]
   },
-  devServer: {
-    hot: true,
-    static: path.resolve(__dirname, './'),
-    host: 'localhost',
-    port: 8080,
-    open: false,
-    proxy: {
-      '/api/': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/code/': {
-        target: 'http://localhost:2017',
-        changeOrigin: true,
-
-      }
-    }
-  },
   resolve: {
     extensions: ['.ts', '.js']
   }
