@@ -212,6 +212,7 @@ export class GameScene extends Phaser.Scene {
         const tileIndex = this.getBlockType(newX, newY);
         const selected = this.cursor.getSelected();
         this.cursor.addPathCnt();
+        this.markAsPassed(oldX, oldY);
         if (this.getBlockType(newX, newY) != 0) {
           if (tileIndex === selected) {
             this.cursor.setActivated();
@@ -267,6 +268,10 @@ export class GameScene extends Phaser.Scene {
     this.currentLevelArray[blockId1].setType(type0);
   }
 
+  private markAsPassed(x: number, y: number): void {
+    let tmpBlock = this.getBlock(x, y);
+    tmpBlock.setType(99);
+  }
   private setFinishedTileOnFooter(blockType: number): void {
     this.add.image(this.footerTileCooridate[this.turn], 1000, 'animation'+blockType).setOrigin(0);
   }
