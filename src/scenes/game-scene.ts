@@ -11,16 +11,21 @@ export class GameScene extends Phaser.Scene {
   private currentLevelWidth: number;
   private currentLevelHeight: number;
   private cursor: Cursor;
+  private point: number = 0;
+  private turn: number = 0;
+  private footerTileCooridate: number[] = [0, 364, 503, 642, 781, 920];
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private actionKey: Phaser.Input.Keyboard.Key;
   private activatedBlockId: number;
   private timeTxt: Phaser.GameObjects.Text;
+  private pointTxt: Phaser.GameObjects.Text;
+  private turnTxt: Phaser.GameObjects.Text;
   private timeLeft: number;
   private timeEvent: Phaser.Time.TimerEvent;
   private api: Api;
   private activatedAnimation: Phaser.GameObjects.Sprite;
-  
+
   constructor() {
     super({
       key: 'GameScene'
@@ -29,6 +34,7 @@ export class GameScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('title', './assets/images/scene/title.png');                
+    this.load.image('footer', './assets/images/scene/footer.png');
     this.load.spritesheet("animation1", "./assets/images/ani/01_animation.png", { frameWidth: 92, frameHeight: 92 });
     this.load.spritesheet("animation2", "./assets/images/ani/02_animation.png", { frameWidth: 92, frameHeight: 92 });
     this.load.spritesheet("animation3", "./assets/images/ani/03_animation.png", { frameWidth: 92, frameHeight: 92 });
@@ -64,16 +70,22 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#121212');
 
     this.add.image(45, 45, 'title').setOrigin(0).setScrollFactor(0);
+    this.add.image(0, 980, 'footer').setOrigin(0).setScrollFactor(0);
+    this.add.text(45, 1000, 'YOU HAVE GOT\n7 TILES', {color: '#121212', fontSize: '22px', fontFamily: 'BauhausStd'}).
+    setOrigin(0);
     this.add.text(1071,45, 'TURN', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
         // setFontStyle('BauhausStd-Bold').
-        setOrigin(0);
+      setOrigin(0);
     this.add.text(1171, 45, 'TIME LEFT', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
-        setOrigin(0);
+      setOrigin(0);
     this.add.text(1371, 45, 'YOUR SCORE', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
-        setOrigin(0);
-
+      setOrigin(0);
+    this.pointTxt = this.add.text(1371, 77, '0', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+      setOrigin(0);
+    this.turnTxt = this.add.text(1071, 77, '0', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+      setOrigin(0);
     this.timeTxt = this.add.text(1171, 77, '', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
-        setOrigin(0);
+      setOrigin(0);
     this.timeEvent = this.time.addEvent({delay: 10000000, callbackScope: this, loop: true})
 
     this.api = new Api();
@@ -114,6 +126,16 @@ export class GameScene extends Phaser.Scene {
   update(): void {
     this.countTimer();
     this.handleInput();
+    this.displayPoint();
+    this.displayTurn();
+  }
+
+  private displayPoint(): void {
+    this.pointTxt.setText(this.point.toString());
+  }
+
+  private displayTurn(): void {
+    this.turnTxt.setText(this.turn.toString());
   }
 
   private countTimer(): void {
@@ -126,7 +148,7 @@ export class GameScene extends Phaser.Scene {
       second = 0;
       this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
       this.scene.stop("game-scene");
-      // TODO : 점수 계산, 씬이동
+      // TODO : 씬이동
     } 
     this.timeTxt.setText(minute.toString().padStart(2, '0')+":"+second.toString().padStart(2, '0'));
   
@@ -189,6 +211,16 @@ export class GameScene extends Phaser.Scene {
       if (this.cursor.isActivated()) {
         const tileIndex = this.getBlockType(newX, newY);
         const selected = this.cursor.getSelected();
+        this.cursor.addPathCnt();
+        if (this.getBlockType(newX, newY) != 0) {
+          if (tileIndex === selected) {
+            this.cursor.setActivated();
+            this.point += this.cursor.getPathCnt() * 100 + 1000;
+            this.cursor.initPathCnt();
+            this.turn++;
+          }
+          return;
+        }
         if (tileIndex === selected) {
           this.playAnimation(true, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
         } else {
@@ -220,6 +252,10 @@ export class GameScene extends Phaser.Scene {
     return this.currentLevelArray[y * this.currentLevelWidth + x].getType();
   }
 
+  setBlockType(x: number, y: number, type: number): void {
+    this.currentLevelArray[y * this.currentLevelWidth + x].setType(type);
+  }
+
   getBlockTypeById(id: number): number {
     return this.currentLevelArray[id].getType();
   }
@@ -229,6 +265,10 @@ export class GameScene extends Phaser.Scene {
     let type1 = this.getBlockTypeById(blockId1);
     this.currentLevelArray[blockId0].setType(type1);
     this.currentLevelArray[blockId1].setType(type0);
+  }
+
+  private setFinishedTileOnFooter(blockType: number): void {
+    this.add.image(this.footerTileCooridate[this.turn], 1000, 'animation'+blockType).setOrigin(0);
   }
 
   public checkMatches(): void {
