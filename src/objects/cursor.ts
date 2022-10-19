@@ -5,6 +5,8 @@ export class Cursor extends Phaser.GameObjects.Image {
   private currentPosition: [number, number];
   private activated: boolean;
   private selected: number;
+  private pathCnt: number;
+  private beforeDirection: number;
 
   constructor(aParams: ICursorConstructor) {
     super(
@@ -23,6 +25,7 @@ export class Cursor extends Phaser.GameObjects.Image {
   }
 
   private initVariables(): void {
+    this.pathCnt = 0;
     this.activated = false;
   }
 
@@ -74,5 +77,17 @@ export class Cursor extends Phaser.GameObjects.Image {
 
   public setSelected(tileIndex: number): void {
     this.selected = tileIndex;
+  }
+
+  public getPathCnt(): number {
+    return this.pathCnt;
+  }
+
+  public addPathCnt(): void {
+    this.pathCnt++;
+  }
+
+  public initPathCnt(): void {
+    this.pathCnt = 0;
   }
 }
