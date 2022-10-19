@@ -25,6 +25,7 @@ export class GameScene extends Phaser.Scene {
   private timeEvent: Phaser.Time.TimerEvent;
   private api: Api;
   private activatedAnimation: Phaser.GameObjects.Sprite;
+  private tileSound: Phaser.Sound.BaseSound;
 
   constructor() {
     super({
@@ -62,6 +63,19 @@ export class GameScene extends Phaser.Scene {
     this.load.image('gameover1', './assets/images/scene/gameover-popup-connected.png');                
     this.load.image('gameover2', './assets/images/scene/gameover-popup-non-left.png');                
     this.load.image('gameover3', './assets/images/scene/gameover-popup-timeup.png');
+    this.load.audio('wavFiles_1', './assets/sound/wavFiles_1.wav');
+    this.load.audio('wavFiles_2', './assets/sound/wavFiles_2.wav');
+    this.load.audio('wavFiles_3', './assets/sound/wavFiles_3.wav');
+    this.load.audio('wavFiles_4', './assets/sound/wavFiles_4.wav');
+    this.load.audio('wavFiles_5', './assets/sound/wavFiles_5.wav');
+    this.load.audio('wavFiles_6', './assets/sound/wavFiles_6.wav');
+    this.load.audio('wavFiles_7', './assets/sound/wavFiles_7.wav');
+    this.load.audio('wavFiles_8', './assets/sound/wavFiles_8.wav');
+    this.load.audio('wavFiles_9', './assets/sound/wavFiles_9.wav');
+    this.load.audio('wavFiles_10', './assets/sound/wavFiles_10.wav');
+    this.load.audio('wavFiles_11', './assets/sound/wavFiles_11.wav');
+    this.load.audio('wavFiles_12', './assets/sound/wavFiles_12.wav');
+
     this.timeLeft = 300;
   }
 
@@ -183,6 +197,21 @@ export class GameScene extends Phaser.Scene {
    */
   private stopAnimation(tile: Phaser.GameObjects.Sprite): void {
     tile.stop();
+  }
+
+  /**
+   * 웨이브파일 재생
+   */
+  private playWave(tileIndex: number): void {
+    this.tileSound = this.sound.add('wavFiles_'+tileIndex, {"loop": true});
+    this.tileSound.play();
+  }
+
+    /**
+   * 웨이브파일 재생 종료
+   */
+  private stopWave(tileIndex: number): void {
+    this.tileSound.stop();
   }
 
   private handleInput(): void {
