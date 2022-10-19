@@ -219,6 +219,7 @@ export class GameScene extends Phaser.Scene {
             this.point += this.cursor.getPathCnt() * 100 + 1000;
             this.cursor.initPathCnt();
             this.turn++;
+            this.setFinishedTileOnFooter(this.cursor.getSelected());
           }
           return;
         }
@@ -272,8 +273,9 @@ export class GameScene extends Phaser.Scene {
     let tmpBlock = this.getBlock(x, y);
     tmpBlock.setType(99);
   }
+
   private setFinishedTileOnFooter(blockType: number): void {
-    this.add.image(this.footerTileCooridate[this.turn], 1000, 'animation'+blockType).setOrigin(0);
+    this.playAnimation(true, blockType, this.footerTileCooridate[this.turn], 1000);
   }
 
   public checkMatches(): void {
