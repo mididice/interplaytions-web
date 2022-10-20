@@ -47,7 +47,7 @@ export class StartScene extends Phaser.Scene {
   create(): void {
     this.prevY = 1;
     this.howtoplayStep = 0;
-    this.bgm = this.sound.add('interplaytions_bgm');
+    this.bgm = this.sound.add('interplaytions_bgm', {"loop": true});
     this.bgm.play();
     this.add.image(0, 0, 'background').setOrigin(0, 0);
     this.add.image(67, 35, 'badge-1').setOrigin(0).setScrollFactor(0);
