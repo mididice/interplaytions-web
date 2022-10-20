@@ -185,6 +185,10 @@ export class GameScene extends Phaser.Scene {
     tile.stop();
   }
 
+  private removeAnimation(tile: Phaser.GameObjects.Sprite): void {
+    // tile.removedFromScene();
+  }
+
   private handleInput(): void {
     let oldX = this.cursor.getX();
     let oldY = this.cursor.getY();
@@ -213,6 +217,9 @@ export class GameScene extends Phaser.Scene {
         const selected = this.cursor.getSelected();
         this.cursor.addPathCnt();
         this.markAsPassed(oldX, oldY);
+        if (this.cursor.getBeforeDirection()[0] === newX && this.cursor.getBeforeDirection()[1] === newY) {
+          // TODO: need to roll-back.
+        }
         if (this.getBlockType(newX, newY) != 0) {
           if (tileIndex === selected) {
             this.cursor.setActivated();
@@ -220,6 +227,10 @@ export class GameScene extends Phaser.Scene {
             this.cursor.initPathCnt();
             this.turn++;
             this.setFinishedTileOnFooter(this.cursor.getSelected());
+          }
+
+          if (selected === this.getBlockType(newX, newY)) {
+            this.cursor.moveTo(newX, newY);
           }
           return;
         }
