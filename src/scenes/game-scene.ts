@@ -1,7 +1,8 @@
 import { CONST } from '../const/const';
 import { Block } from '../objects/block';
 import { Cursor } from '../objects/cursor';
-import { Api } from '../objects/Api';
+import { Api } from '../objects/api';
+import { Stack } from '../objects/stack';
 import { Midi } from '@tonejs/midi'
 import * as Tone from 'tone'
 
@@ -26,7 +27,7 @@ export class GameScene extends Phaser.Scene {
   private api: Api;
   private activatedAnimation: Phaser.GameObjects.Sprite;
   private tileSound: Phaser.Sound.BaseSound;
-
+  private stack: Stack<Phaser.GameObjects.Sprite>;
   constructor() {
     super({
       key: 'GameScene'
@@ -77,6 +78,7 @@ export class GameScene extends Phaser.Scene {
     this.load.audio('wavFiles_12', './assets/sound/wavFiles_12.wav');
 
     this.timeLeft = 300;
+    this.stack = new Stack<Phaser.GameObjects.Sprite>();
   }
 
 
@@ -180,8 +182,9 @@ export class GameScene extends Phaser.Scene {
     if (isTile === false) {
       animationTarget = "animationb";
     }
+    const key = animationTarget+index;
     this.anims.create({
-      key: animationTarget+index,
+      key: key,
       frameRate: 59,
       frames: this.anims.generateFrameNumbers(animationTarget+index, { start: 0, end: 58 }),
       repeat: -1
@@ -193,14 +196,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
-   * 애니메이션 종료
+   * 애니메이션 정지
    */
   private stopAnimation(tile: Phaser.GameObjects.Sprite): void {
-    tile.stop();
+    if (tile){
+      tile.stop();
+    }
   }
 
+  /**
+   * 애니메이션 제거
+   */
   private removeAnimation(tile: Phaser.GameObjects.Sprite): void {
-    // tile.removedFromScene();
+    if (tile){
+      tile.destroy();
+    }
   }
 
   /**
@@ -217,7 +227,7 @@ export class GameScene extends Phaser.Scene {
   private stopWave(tileIndex: number): void {
     this.tileSound.stop();
   }
-  
+
   private handleInput(): void {
     let oldX = this.cursor.getX();
     let oldY = this.cursor.getY();
@@ -225,6 +235,7 @@ export class GameScene extends Phaser.Scene {
     let dy = 0;
     let width = CONST.levels[CONST.currentLevel].width;
     let height = CONST.levels[CONST.currentLevel].height;
+    let createdAnimationKey: Phaser.GameObjects.Sprite;
 
     if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) {
       dx = 1;
@@ -248,6 +259,7 @@ export class GameScene extends Phaser.Scene {
         this.markAsPassed(oldX, oldY);
         if (this.cursor.getBeforeDirection()[0] === newX && this.cursor.getBeforeDirection()[1] === newY) {
           // TODO: need to roll-back.
+          this.removeAnimation(this.stack.pop());
         }
         if (this.getBlockType(newX, newY) != 0) {
           if (tileIndex === selected) {
@@ -256,6 +268,7 @@ export class GameScene extends Phaser.Scene {
             this.cursor.initPathCnt();
             this.turn++;
             this.setFinishedTileOnFooter(this.cursor.getSelected());
+            this.stack.clear();
           }
 
           if (selected === this.getBlockType(newX, newY)) {
@@ -264,10 +277,11 @@ export class GameScene extends Phaser.Scene {
           return;
         }
         if (tileIndex === selected) {
-          this.playAnimation(true, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
+          createdAnimationKey = this.playAnimation(true, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
         } else {
-          this.playAnimation(false, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
+          createdAnimationKey = this.playAnimation(false, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
         }
+        this.stack.push(createdAnimationKey);
       }
       this.cursor.moveTo(newX, newY);
     }
@@ -277,7 +291,8 @@ export class GameScene extends Phaser.Scene {
       if (tileIndex !== 0) {
         this.cursor.setActivated();
         this.cursor.setSelected(tileIndex);
-        this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
+        createdAnimationKey = this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
+        this.stack.push(createdAnimationKey);
       }
     }
   }
