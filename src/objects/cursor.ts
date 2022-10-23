@@ -6,7 +6,7 @@ export class Cursor extends Phaser.GameObjects.Image {
   private activated: boolean;
   private selected: number;
   private pathCnt: number;
-  private beforeDirection: number;
+  private beforePosition: [number, number];
 
   constructor(aParams: ICursorConstructor) {
     super(
@@ -35,6 +35,7 @@ export class Cursor extends Phaser.GameObjects.Image {
   }
 
   public moveTo(x: number, y: number): void {
+    this.beforePosition = this.currentPosition;
     this.currentPosition = [x, y];
     this.setPosition((x * CONST.tileSize) + 315, (y * CONST.tileSize) + 179);
   }
@@ -89,5 +90,22 @@ export class Cursor extends Phaser.GameObjects.Image {
 
   public initPathCnt(): void {
     this.pathCnt = 0;
+  }
+
+  public setBeforeDirection(x: number, y:number): void {
+    this.beforePosition = [x, y];
+  }
+
+  public getBeforeDirection(): [number, number] {
+    return this.beforePosition;
+  }
+
+  public getBeforeY(): number {
+    return this.beforePosition[1];
+    
+  }
+
+  public getBeforeX(): number {
+    return this.beforePosition[0];
   }
 }
