@@ -255,12 +255,15 @@ export class GameScene extends Phaser.Scene {
       if (this.cursor.isActivated()) {
         const tileIndex = this.getBlockType(newX, newY);
         const selected = this.cursor.getSelected();
+        if (this.cursor.getPathCnt() === 0) {
+          this.cursor.initActivatedValue();
+        }
         this.cursor.addPathCnt();
         this.markAsPassed(oldX, oldY);
-        if (this.cursor.getBeforeDirection()[0] === newX && this.cursor.getBeforeDirection()[1] === newY) {
-          // TODO: need to roll-back.
-          this.removeAnimation(this.stack.pop());
-        }
+        // if (this.cursor.getBeforeDirection()[0] === newX && this.cursor.getBeforeDirection()[1] === newY) {
+        //   // TODO: need to roll-back.
+        //   this.removeAnimation(this.stack.pop());
+        // }
         if (this.getBlockType(newX, newY) != 0) {
           if (tileIndex === selected) {
             this.cursor.setActivated();
