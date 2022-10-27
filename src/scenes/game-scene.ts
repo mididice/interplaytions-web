@@ -141,7 +141,7 @@ export class GameScene extends Phaser.Scene {
 
   update(): void {
     this.countTimer();
-    this.handleInput();
+    this.handleInput1();
     this.displayPoint();
     this.displayTurn();
   }
@@ -298,6 +298,77 @@ export class GameScene extends Phaser.Scene {
         this.stack.push(createdAnimationKey);
       }
     }
+  }
+
+  private handleInput1(): void {
+    let oldX = this.cursor.getX();
+    let oldY = this.cursor.getY();
+    let dx = 0;
+    let dy = 0;
+    let width = CONST.levels[CONST.currentLevel].width;
+    let height = CONST.levels[CONST.currentLevel].height;
+    let createdAnimationKey: Phaser.GameObjects.Sprite;
+
+    if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) {
+      dx = 1;
+    } else if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) {
+      dx = -1;
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) {
+      dy = -1;
+    } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
+      dy = 1;
+    }
+    this.PressActionKey();
+
+    if (dx !== 0 || dy !== 0) {
+      let newX = oldX + dx;
+      let newY = oldY + dy;
+      if (newX < 0 || newX >= width || newY < 0 || newY >= height) return;      
+      if (!this.cursor.isActivated()) {
+        this.cursor.moveTo(newX, newY);
+        return;
+      }
+      this.markAsPassed(oldX, oldY);
+      this.cursor.addPathCnt();
+      this.cursor.setBeforeDirection(oldX, oldY);
+      this.cursor.moveTo(newX, newY);
+    }
+  }
+
+  private PressActionKey(): void {
+    if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
+      console.log("press Action")
+      const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
+      let createdAnimationKey: Phaser.GameObjects.Sprite;
+      if (tileIndex !== 0) {
+        console.log("on spc tile");
+        this.cursor.setActivated();
+        if (this.cursor.isActivated()) {
+          this.startTurn();
+        } else {
+          this.endTurn();
+        }
+        this.cursor.setSelected(tileIndex);
+        createdAnimationKey = this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
+        this.stack.push(createdAnimationKey);
+      }
+    }
+  }
+
+  private startTurn(): void {
+    console.log("turn start");
+    this.cursor.initActivatedValue();
+  }
+
+  private endTurn(): void {
+    console.log("turn end");
+    // this.cursor.setActivated();
+    this.point += this.cursor.getPathCnt() * 100 + 1000;
+    // this.cursor.initPathCnt();
+    this.turn++;
+    this.setFinishedTileOnFooter(this.cursor.getSelected());
+    this.stack.clear();
   }
 
   getBlock(x: number, y: number): Block {
