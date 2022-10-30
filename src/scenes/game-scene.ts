@@ -141,7 +141,7 @@ export class GameScene extends Phaser.Scene {
 
   update(): void {
     this.countTimer();
-    this.handleInput1();
+    this.handleInput();
     this.displayPoint();
     this.displayTurn();
   }
@@ -228,78 +228,6 @@ export class GameScene extends Phaser.Scene {
     this.tileSound.stop();
   }
 
-  private handleInput(): void {
-    let oldX = this.cursor.getX();
-    let oldY = this.cursor.getY();
-    let dx = 0;
-    let dy = 0;
-    let width = CONST.levels[CONST.currentLevel].width;
-    let height = CONST.levels[CONST.currentLevel].height;
-    let createdAnimationKey: Phaser.GameObjects.Sprite;
-
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) {
-      dx = 1;
-    } else if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) {
-      dx = -1;
-    }
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) {
-      dy = -1;
-    } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
-      dy = 1;
-    }
-
-    if (dx !== 0 || dy !== 0) {
-      let newX = oldX + dx;
-      let newY = oldY + dy;
-      if (newX < 0 || newX >= width || newY < 0 || newY >= height) return;
-      if (this.cursor.isActivated()) {
-        const tileIndex = this.getBlockType(newX, newY);
-        const selected = this.cursor.getSelected();
-        if (this.cursor.getPathCnt() === 0) {
-          this.cursor.initActivatedValue();
-        }
-        this.cursor.addPathCnt();
-        this.markAsPassed(oldX, oldY);
-        // if (this.cursor.getBeforeDirection()[0] === newX && this.cursor.getBeforeDirection()[1] === newY) {
-        //   // TODO: need to roll-back.
-        //   this.removeAnimation(this.stack.pop());
-        // }
-        if (this.getBlockType(newX, newY) != 0) {
-          if (tileIndex === selected) {
-            this.cursor.setActivated();
-            this.point += this.cursor.getPathCnt() * 100 + 1000;
-            this.cursor.initPathCnt();
-            this.turn++;
-            this.setFinishedTileOnFooter(this.cursor.getSelected());
-            this.stack.clear();
-          }
-
-          if (selected === this.getBlockType(newX, newY)) {
-            this.cursor.moveTo(newX, newY);
-          }
-          return;
-        }
-        if (tileIndex === selected) {
-          createdAnimationKey = this.playAnimation(true, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
-        } else {
-          createdAnimationKey = this.playAnimation(false, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
-        }
-        this.stack.push(createdAnimationKey);
-      }
-      this.cursor.moveTo(newX, newY);
-    }
-
-    if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
-      const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
-      if (tileIndex !== 0) {
-        this.cursor.setActivated();
-        this.cursor.setSelected(tileIndex);
-        createdAnimationKey = this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
-        this.stack.push(createdAnimationKey);
-      }
-    }
-  }
-
   private getAnimationKey(blockType: number, x: number, y: number): Phaser.GameObjects.Sprite {
     let selectedBlockType = this.cursor.getSelected();
     if (blockType === selectedBlockType) {
@@ -308,7 +236,7 @@ export class GameScene extends Phaser.Scene {
     return this.playAnimation(false, selectedBlockType, this.cursor.getXByParam(x), this.cursor.getYByParam(y));
   }
 
-  private handleInput1(): void {
+  private handleInput(): void {
     let oldX = this.cursor.getX();
     let oldY = this.cursor.getY();
     let dx = 0;
@@ -348,7 +276,7 @@ export class GameScene extends Phaser.Scene {
       if (newX === this.cursor.getBeforeX() && newY === this.cursor.getBeforeY()) {
         console.log("roll-back!");
         this.markAsPath(newX, newY);
-        this.removeAnimation(this.getAnimationKey(nextBlockType, oldX, oldY));
+        this.stack.pop().destroy();
         this.cursor.removeRecentBeforeDirection();
         this.cursor.moveTo(newX, newY);
         return;
