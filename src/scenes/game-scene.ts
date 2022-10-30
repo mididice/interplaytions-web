@@ -274,13 +274,10 @@ export class GameScene extends Phaser.Scene {
       }
       
       if (newX === this.cursor.getBeforeX() && newY === this.cursor.getBeforeY()) {
-        console.log("roll-back!");
-        this.markAsPath(newX, newY);
-        this.stack.pop().destroy();
-        this.cursor.removeRecentBeforeDirection();
-        this.cursor.moveTo(newX, newY);
+        this.rollback(newX, newY);
         return;
       }
+
       if (nextBlockType !== 0) return;
       this.markAsPassed(oldX, oldY);
       this.cursor.addPathCnt();
@@ -291,14 +288,18 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private rollback(x: number, y: number): void {
+    this.markAsPath(x, y);
+    this.stack.pop().destroy();
+    this.cursor.removeRecentBeforeDirection();
+    this.cursor.moveTo(x, y);
+  }
+
   private PressActionKey(): void {
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
-      console.log("press Action")
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
       let createdAnimationKey: Phaser.GameObjects.Sprite;
       if (tileIndex !== 0) {
-        console.log("on spc tile");
-        // this.cursor.setActivated();
         if (!this.cursor.isActivated()) {
           this.startTurn();
           this.cursor.setSelected(tileIndex);
@@ -312,17 +313,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   private startTurn(): void {
-    console.log("turn start");
     this.cursor.setActivatedValue(true);
     this.cursor.initActivatedValue();
   }
 
   private endTurn(): void {
-    console.log("turn end");
-    // this.cursor.setActivated();
     this.cursor.setActivatedValue(false);
     this.point += this.cursor.getPathCnt() * 100 + 1000;
-    // this.cursor.initPathCnt();
     this.turn++;
     this.setFinishedTileOnFooter(this.cursor.getSelected());
     this.stack.clear();

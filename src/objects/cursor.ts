@@ -42,23 +42,10 @@ export class Cursor extends Phaser.GameObjects.Image {
   }
 
   public moveTo(x: number, y: number): void {
-    // if (this.isActivated) {
-    //   this.beforePosition.push(this.currentPosition);
-    // }
-    this.printBefore();
     this.currentPosition = [x, y];
     this.setPosition((x * CONST.tileSize) + 315, (y * CONST.tileSize) + 179);
   }
 
-  /**
-   * printBefore
-   */
-  public printBefore() {
-    for (let i = 0; i < this.beforePosition.length; i++) {
-      const element = this.beforePosition[i];
-      console.log(element);
-    }  
-  }
   public getX(): number {
     return this.currentPosition[0];
   }
@@ -85,10 +72,6 @@ export class Cursor extends Phaser.GameObjects.Image {
 
   public isActivated(): boolean {
     return this.activated;
-  }
-
-  public setActivated(): void {
-    this.activated = !this.activated;
   }
 
   public setActivatedValue(b: boolean): void {
