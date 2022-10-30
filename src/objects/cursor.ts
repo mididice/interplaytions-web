@@ -91,6 +91,10 @@ export class Cursor extends Phaser.GameObjects.Image {
     this.activated = !this.activated;
   }
 
+  public setActivatedValue(b: boolean): void {
+    this.activated = b;
+  }
+
   public getSelected(): number {
     return this.selected;
   }
@@ -122,15 +126,21 @@ export class Cursor extends Phaser.GameObjects.Image {
     // return this.beforePosition.pop();
   }
 
+  public removeRecentBeforeDirection(): void {
+    this.beforePosition.pop();
+  }
+
   public getBeforeDirectionLength(): number {
     return this.beforePosition.length
   }
 
   public getBeforeY(): number {
-    return this.beforePosition.at(this.beforePosition.length)[1];
+    if (this.beforePosition.length === 0) return 99;
+    return this.beforePosition.at(this.beforePosition.length - 1)[1];
   }
 
   public getBeforeX(): number {
-    return this.beforePosition.at(this.beforePosition.length)[0];
+    if (this.beforePosition.length === 0) return 99;
+    return this.beforePosition.at(this.beforePosition.length - 1)[0];
   }
 }
