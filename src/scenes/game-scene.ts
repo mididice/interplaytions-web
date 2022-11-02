@@ -228,6 +228,14 @@ export class GameScene extends Phaser.Scene {
     this.tileSound.stop();
   }
 
+  private getAnimationKey(blockType: number, x: number, y: number): Phaser.GameObjects.Sprite {
+    let selectedBlockType = this.cursor.getSelected();
+    if (blockType === selectedBlockType) {
+      return this.playAnimation(true, selectedBlockType, this.cursor.getXByParam(x), this.cursor.getYByParam(y));
+    }
+    return this.playAnimation(false, selectedBlockType, this.cursor.getXByParam(x), this.cursor.getYByParam(y));
+  }
+
   private handleInput(): void {
     let oldX = this.cursor.getX();
     let oldY = this.cursor.getY();
@@ -247,54 +255,75 @@ export class GameScene extends Phaser.Scene {
     } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) {
       dy = 1;
     }
+    this.PressActionKey();
 
     if (dx !== 0 || dy !== 0) {
       let newX = oldX + dx;
       let newY = oldY + dy;
       if (newX < 0 || newX >= width || newY < 0 || newY >= height) return;
-      if (this.cursor.isActivated()) {
-        const tileIndex = this.getBlockType(newX, newY);
-        const selected = this.cursor.getSelected();
-        this.cursor.addPathCnt();
-        this.markAsPassed(oldX, oldY);
-        if (this.cursor.getBeforeDirection()[0] === newX && this.cursor.getBeforeDirection()[1] === newY) {
-          // TODO: need to roll-back.
-          this.removeAnimation(this.stack.pop());
-        }
-        if (this.getBlockType(newX, newY) != 0) {
-          if (tileIndex === selected) {
-            this.cursor.setActivated();
-            this.point += this.cursor.getPathCnt() * 100 + 1000;
-            this.cursor.initPathCnt();
-            this.turn++;
-            this.setFinishedTileOnFooter(this.cursor.getSelected());
-            this.stack.clear();
-          }
-
-          if (selected === this.getBlockType(newX, newY)) {
-            this.cursor.moveTo(newX, newY);
-          }
-          return;
-        }
-        if (tileIndex === selected) {
-          createdAnimationKey = this.playAnimation(true, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
-        } else {
-          createdAnimationKey = this.playAnimation(false, selected, this.cursor.getXByParam(newX), this.cursor.getYByParam(newY));
-        }
-        this.stack.push(createdAnimationKey);
+      if (!this.cursor.isActivated()) {
+        this.cursor.moveTo(newX, newY);
+        return;
       }
+      let nextBlockType = this.getBlockType(newX, newY);
+      let selectedBlockType = this.cursor.getSelected();
+      if (nextBlockType === selectedBlockType) {
+        this.endTurn();
+        this.cursor.moveTo(newX, newY);
+        return;
+      }
+      
+      if (newX === this.cursor.getBeforeX() && newY === this.cursor.getBeforeY()) {
+        this.rollback(newX, newY);
+        return;
+      }
+
+      if (nextBlockType !== 0) return;
+      this.markAsPassed(oldX, oldY);
+      this.cursor.addPathCnt();
+      this.cursor.setBeforeDirection(oldX, oldY);
+      let animationKey = this.getAnimationKey(nextBlockType, newX, newY);
+      this.stack.push(animationKey);
       this.cursor.moveTo(newX, newY);
     }
+  }
 
+  private rollback(x: number, y: number): void {
+    this.markAsPath(x, y);
+    this.stack.pop().destroy();
+    this.cursor.removeRecentBeforeDirection();
+    this.cursor.moveTo(x, y);
+  }
+
+  private PressActionKey(): void {
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
+      let createdAnimationKey: Phaser.GameObjects.Sprite;
       if (tileIndex !== 0) {
-        this.cursor.setActivated();
-        this.cursor.setSelected(tileIndex);
-        createdAnimationKey = this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
-        this.stack.push(createdAnimationKey);
+        if (!this.cursor.isActivated()) {
+          this.startTurn();
+          this.cursor.setSelected(tileIndex);
+          createdAnimationKey = this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
+          this.stack.push(createdAnimationKey);
+        } else {
+          this.endTurn();
+        }
       }
     }
+  }
+
+  private startTurn(): void {
+    this.cursor.setActivatedValue(true);
+    this.cursor.initActivatedValue();
+  }
+
+  private endTurn(): void {
+    this.cursor.setActivatedValue(false);
+    this.point += this.cursor.getPathCnt() * 100 + 1000;
+    this.turn++;
+    this.setFinishedTileOnFooter(this.cursor.getSelected());
+    this.stack.clear();
+    this.cursor.initActivatedValue();
   }
 
   getBlock(x: number, y: number): Block {
@@ -327,6 +356,11 @@ export class GameScene extends Phaser.Scene {
   private markAsPassed(x: number, y: number): void {
     let tmpBlock = this.getBlock(x, y);
     tmpBlock.setType(99);
+  }
+
+  private markAsPath(x: number, y: number): void {
+    let tmpBlock = this.getBlock(x, y);
+    tmpBlock.setType(0);
   }
 
   private setFinishedTileOnFooter(blockType: number): void {
