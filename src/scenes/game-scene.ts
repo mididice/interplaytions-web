@@ -144,6 +144,7 @@ export class GameScene extends Phaser.Scene {
     this.handleInput();
     this.displayPoint();
     this.displayTurn();
+    this.allTilesMatchedFinish();
   }
 
   private displayPoint(): void {
@@ -162,12 +163,23 @@ export class GameScene extends Phaser.Scene {
     if (currentTime <= 0) {
       minute = 0;
       second = 0;
-      this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
-      this.scene.stop("game-scene");
+      this.timeOverFinish();
       // TODO : 씬이동
     } 
     this.timeTxt.setText(minute.toString().padStart(2, '0')+":"+second.toString().padStart(2, '0'));
-  
+  }
+
+  private timeOverFinish(): void {
+    this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
+    this.scene.stop("game-scene");
+  }
+
+  private allTilesMatchedFinish(): void {
+    let totalTileCnt = 5;
+    if (this.turn === totalTileCnt) {
+      this.add.image(665, 429, 'gameover1').setOrigin(0).setScrollFactor(0);
+      this.scene.stop("game-scene");
+    }
   }
 
   /**
