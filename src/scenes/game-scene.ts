@@ -233,7 +233,7 @@ export class GameScene extends Phaser.Scene {
     this.tileSound.play();
   }
 
-    /**
+  /**
    * 웨이브파일 재생 종료
    */
   private stopWave(tileIndex: number): void {
@@ -280,6 +280,9 @@ export class GameScene extends Phaser.Scene {
       let nextBlockType = this.getBlockType(newX, newY);
       let selectedBlockType = this.cursor.getSelected();
       if (nextBlockType === selectedBlockType) {
+        let animationKey = this.getAnimationKey(nextBlockType, newX, newY);
+        this.stack.push(animationKey);
+        this.markAsPassed(newX, newY);
         this.endTurn();
         this.cursor.moveTo(newX, newY);
         return;
@@ -311,15 +314,17 @@ export class GameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
       let createdAnimationKey: Phaser.GameObjects.Sprite;
+      if (tileIndex === 99) {
+        return;
+      }
       if (tileIndex !== 0) {
         if (!this.cursor.isActivated()) {
           this.startTurn();
+          this.markAsPassed(this.cursor.getX(), this.cursor.getY());
           this.cursor.setSelected(tileIndex);
           createdAnimationKey = this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
           this.stack.push(createdAnimationKey);
-        } else {
-          this.endTurn();
-        }
+        } 
       }
     }
   }
