@@ -144,6 +144,7 @@ export class GameScene extends Phaser.Scene {
     this.handleInput();
     this.displayPoint();
     this.displayTurn();
+    this.allTilesMatchedFinish();
   }
 
   private displayPoint(): void {
@@ -162,12 +163,28 @@ export class GameScene extends Phaser.Scene {
     if (currentTime <= 0) {
       minute = 0;
       second = 0;
-      this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
-      this.scene.stop("game-scene");
+      this.timeOverFinish();
       // TODO : 씬이동
     } 
     this.timeTxt.setText(minute.toString().padStart(2, '0')+":"+second.toString().padStart(2, '0'));
-  
+  }
+
+  private timeOverFinish(): void {
+    this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
+    this.scene.stop("game-scene");
+  }
+
+  private allTilesMatchedFinish(): void {
+    let totalTileCnt = 5;
+    if (this.turn === totalTileCnt) {
+      this.add.image(665, 429, 'gameover1').setOrigin(0).setScrollFactor(0);
+      this.scene.stop("game-scene");
+    }
+  }
+
+  private nowayRouteFinish(): void {
+    this.add.image(655, 429, 'gameover2').setOrigin(0).setScrollFactor(0);
+    this.scene.stop("game-scene");
   }
 
   /**
@@ -221,7 +238,7 @@ export class GameScene extends Phaser.Scene {
     this.tileSound.play();
   }
 
-    /**
+  /**
    * 웨이브파일 재생 종료
    */
   private stopWave(tileIndex: number): void {
@@ -268,6 +285,9 @@ export class GameScene extends Phaser.Scene {
       let nextBlockType = this.getBlockType(newX, newY);
       let selectedBlockType = this.cursor.getSelected();
       if (nextBlockType === selectedBlockType) {
+        let animationKey = this.getAnimationKey(nextBlockType, newX, newY);
+        this.stack.push(animationKey);
+        this.markAsPassed(newX, newY);
         this.endTurn();
         this.cursor.moveTo(newX, newY);
         return;
@@ -299,15 +319,18 @@ export class GameScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
       let createdAnimationKey: Phaser.GameObjects.Sprite;
+      if (tileIndex === 99) {
+        return;
+      }
       if (tileIndex !== 0) {
         if (!this.cursor.isActivated()) {
+          if (!this.checkNowayRoute(this.cursor.getX(), this.cursor.getY())) this.nowayRouteFinish();
           this.startTurn();
+          this.markAsPassed(this.cursor.getX(), this.cursor.getY());
           this.cursor.setSelected(tileIndex);
           createdAnimationKey = this.playAnimation(true, tileIndex, this.cursor.getXPosition(), this.cursor.getYPosition());
           this.stack.push(createdAnimationKey);
-        } else {
-          this.endTurn();
-        }
+        } 
       }
     }
   }
@@ -439,5 +462,34 @@ export class GameScene extends Phaser.Scene {
 			  synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
 			})
 		})
+  }
+
+  private dx: number[] = [1, -1, 0, 0];
+  private dy: number[] = [0, 0, 1,-1];
+  private checkNowayRoute(x: number, y: number): boolean {
+    let currentBlockType = this.getBlock(x, y).getType();
+    let list = new Array<[number, number]>();
+    list.push([x, y]);
+    let visited = new Array<boolean>(this.currentLevelHeight * this.currentLevelWidth);
+    for (let i = 0; i < visited.length; i++) visited[i] = false;
+    visited[y * this.currentLevelWidth + x] = true;
+    while (list.length !== 0) {
+      let tmpPosition = list.pop();
+      for (let i = 0; i < 4; i++) {
+        let nx = tmpPosition[0] + this.dx[i];
+        let ny = tmpPosition[1] + this.dy[i];
+
+        if (nx < 0 || ny < 0 || nx >= this.currentLevelWidth || ny >= this.currentLevelHeight ) continue;
+        if (visited[ny * this.currentLevelWidth + nx]) continue;
+
+        let tmpBlockType = this.getBlock(nx, ny).getType();
+        if (tmpBlockType === currentBlockType) return true;
+        if (tmpBlockType !== 0) continue;
+        
+        list.push([nx, ny]);
+        visited[ny * this.currentLevelWidth + nx] = true;
+      }
+    }
+    return false;
   }
 }
