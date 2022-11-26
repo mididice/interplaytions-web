@@ -182,6 +182,11 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private nowayRouteFinish(): void {
+    this.add.image(655, 429, 'gameover2').setOrigin(0).setScrollFactor(0);
+    this.scene.stop("game-scene");
+  }
+
   /**
    * 애니메이션 실행
    * @param isTile 타일 or 경로 애니메이션인지 선택
@@ -319,6 +324,7 @@ export class GameScene extends Phaser.Scene {
       }
       if (tileIndex !== 0) {
         if (!this.cursor.isActivated()) {
+          if (!this.checkNowayRoute(this.cursor.getX(), this.cursor.getY())) this.nowayRouteFinish();
           this.startTurn();
           this.markAsPassed(this.cursor.getX(), this.cursor.getY());
           this.cursor.setSelected(tileIndex);
@@ -456,5 +462,34 @@ export class GameScene extends Phaser.Scene {
 			  synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
 			})
 		})
+  }
+
+  private dx: number[] = [1, -1, 0, 0];
+  private dy: number[] = [0, 0, 1,-1];
+  private checkNowayRoute(x: number, y: number): boolean {
+    let currentBlockType = this.getBlock(x, y).getType();
+    let list = new Array<[number, number]>();
+    list.push([x, y]);
+    let visited = new Array<boolean>(this.currentLevelHeight * this.currentLevelWidth);
+    for (let i = 0; i < visited.length; i++) visited[i] = false;
+    visited[y * this.currentLevelWidth + x] = true;
+    while (list.length !== 0) {
+      let tmpPosition = list.pop();
+      for (let i = 0; i < 4; i++) {
+        let nx = tmpPosition[0] + this.dx[i];
+        let ny = tmpPosition[1] + this.dy[i];
+
+        if (nx < 0 || ny < 0 || nx >= this.currentLevelWidth || ny >= this.currentLevelHeight ) continue;
+        if (visited[ny * this.currentLevelWidth + nx]) continue;
+
+        let tmpBlockType = this.getBlock(nx, ny).getType();
+        if (tmpBlockType === currentBlockType) return true;
+        if (tmpBlockType !== 0) continue;
+        
+        list.push([nx, ny]);
+        visited[ny * this.currentLevelWidth + nx] = true;
+      }
+    }
+    return false;
   }
 }
