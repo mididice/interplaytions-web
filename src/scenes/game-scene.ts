@@ -177,8 +177,10 @@ export class GameScene extends Phaser.Scene {
   private allTilesMatchedFinish(): void {
     let totalTileCnt = 5;
     if (this.turn === totalTileCnt) {
+      this.theEnd();
       this.add.image(665, 429, 'gameover1').setOrigin(0).setScrollFactor(0);
       this.scene.stop("game-scene");
+      this.turn = 0;
     }
   }
 
@@ -290,6 +292,9 @@ export class GameScene extends Phaser.Scene {
         this.markAsPassed(newX, newY);
         this.endTurn();
         this.cursor.moveTo(newX, newY);
+        this.stopWave(selectedBlockType);
+        this.chooseMidi(this.turn, selectedBlockType);
+        this.removeAnimation(animationKey)
         return;
       }
       
@@ -323,6 +328,7 @@ export class GameScene extends Phaser.Scene {
         return;
       }
       if (tileIndex !== 0) {
+        this.playWave(tileIndex);
         if (!this.cursor.isActivated()) {
           if (!this.checkNowayRoute(this.cursor.getX(), this.cursor.getY())) this.nowayRouteFinish();
           this.startTurn();
@@ -456,8 +462,14 @@ export class GameScene extends Phaser.Scene {
   private async playMidi(url : string): Promise<void> {
     const midi = await Midi.fromUrl(url)
     const now = Tone.now() + 0.5
+    const env = {
+      "oscillator":{"type": "square16"},
+      "envolope":{"attack": 0.005, "decay":0.1, "sustain":0.3, "release":1}
+    }
+    
 		midi.tracks.forEach(track => {
-      const synth = new Tone.PluckSynth().toDestination();
+      const synth = new Tone.FMSynth().toDestination();
+      synth.set({oscillator: { type:"square8" }})
 			track.notes.forEach(note => {
 			  synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
 			})
