@@ -28,6 +28,8 @@ export class GameScene extends Phaser.Scene {
   private activatedAnimation: Phaser.GameObjects.Sprite;
   private tileSound: Phaser.Sound.BaseSound;
   private stack: Stack<Phaser.GameObjects.Sprite>;
+  private selected: Array<number> = [];
+  private isFinished: Boolean = false;
   constructor() {
     super({
       key: 'GameScene'
@@ -172,6 +174,7 @@ export class GameScene extends Phaser.Scene {
   private timeOverFinish(): void {
     this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
     this.scene.stop("game-scene");
+    this.isFinished = true;
   }
 
   private allTilesMatchedFinish(): void {
@@ -181,12 +184,14 @@ export class GameScene extends Phaser.Scene {
       this.add.image(665, 429, 'gameover1').setOrigin(0).setScrollFactor(0);
       this.scene.stop("game-scene");
       this.turn = 0;
+      this.isFinished = true;
     }
   }
 
   private nowayRouteFinish(): void {
     this.add.image(655, 429, 'gameover2').setOrigin(0).setScrollFactor(0);
     this.scene.stop("game-scene");
+    this.isFinished = true;
   }
 
   /**
@@ -294,7 +299,7 @@ export class GameScene extends Phaser.Scene {
         this.cursor.moveTo(newX, newY);
         this.stopWave(selectedBlockType);
         this.chooseMidi(this.turn, selectedBlockType);
-        this.removeAnimation(animationKey)
+        this.stopAnimation(animationKey)
         return;
       }
       
@@ -322,6 +327,9 @@ export class GameScene extends Phaser.Scene {
 
   private PressActionKey(): void {
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
+      if (this.isFinished) {
+        this.scene.start('EndScene', {"map":1, "score": this.point, "selected": this.selected});
+      }
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
       let createdAnimationKey: Phaser.GameObjects.Sprite;
       if (tileIndex === 99) {
@@ -351,6 +359,7 @@ export class GameScene extends Phaser.Scene {
     this.point += this.cursor.getPathCnt() * 100 + 1000;
     this.turn++;
     this.setFinishedTileOnFooter(this.cursor.getSelected());
+    this.selected.push(this.cursor.getSelected());
     this.stack.clear();
     this.cursor.initActivatedValue();
   }
