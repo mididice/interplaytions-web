@@ -29,7 +29,7 @@ export class GameScene extends Phaser.Scene {
   private tileSound: Phaser.Sound.BaseSound;
   private stack: Stack<Phaser.GameObjects.Sprite>;
   private selected: Array<number> = [];
-  private isFinished: Boolean = false;
+  private isFinished: Boolean;
   constructor() {
     super({
       key: 'GameScene'
@@ -81,6 +81,18 @@ export class GameScene extends Phaser.Scene {
 
     this.timeLeft = 300;
     this.stack = new Stack<Phaser.GameObjects.Sprite>();
+    this.load.image('cube1', './assets/images/cube/01.png');
+    this.load.image('cube2', './assets/images/cube/02.png');
+    this.load.image('cube3', './assets/images/cube/03.png');
+    this.load.image('cube4', './assets/images/cube/04.png');
+    this.load.image('cube5', './assets/images/cube/05.png');
+    this.load.image('cube6', './assets/images/cube/06.png');
+    this.load.image('cube7', './assets/images/cube/07.png');
+    this.load.image('cube8', './assets/images/cube/08.png');
+    this.load.image('cube9', './assets/images/cube/09.png');
+    this.load.image('cube10', './assets/images/cube/10.png');
+    this.load.image('cube11', './assets/images/cube/11.png');
+    this.load.image('cube12', './assets/images/cube/12.png');
   }
 
 
@@ -109,7 +121,7 @@ export class GameScene extends Phaser.Scene {
     this.api = new Api();
 
     let tempLevel = CONST.levels[CONST.currentLevel];
-
+    this.currentLevelArray = [];
     this.currentLevelWidth = tempLevel.width;
     this.currentLevelHeight = tempLevel.height;
 
@@ -139,6 +151,10 @@ export class GameScene extends Phaser.Scene {
       texture: 'cursor',
       cursorStartPosition: CONST.levels[CONST.currentLevel].cursorStart
     });
+    this.isFinished = false;
+    this.point = 0;
+    this.turn = 0;
+    this.selected = [];
   }
 
   update(): void {
@@ -402,7 +418,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private setFinishedTileOnFooter(blockType: number): void {
-    this.playAnimation(true, blockType, this.footerTileCooridate[this.turn], 1000);
+    this.add.image(350+((this.turn-1)*139), 985, `cube${blockType}`).setOrigin(0).setScrollFactor(0);
   }
 
   public checkMatches(): void {
