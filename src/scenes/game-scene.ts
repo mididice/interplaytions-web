@@ -501,6 +501,16 @@ export class GameScene extends Phaser.Scene {
 		})
   }
 
+  private checkNowayRouteExistedTile(): boolean {
+    for (let i = 0; i < this.currentLevelArray.length; i++) {
+      let tmpBlock = this.currentLevelArray[i];
+      if (tmpBlock.getType() === 0) continue;
+      if (tmpBlock.getType() > 10) continue;
+      if (this.checkNowayRoute) return true;
+    }
+    return false;
+  }
+
   private dx: number[] = [1, -1, 0, 0];
   private dy: number[] = [0, 0, 1,-1];
   private checkNowayRoute(x: number, y: number): boolean {
