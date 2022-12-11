@@ -312,6 +312,7 @@ export class GameScene extends Phaser.Scene {
         this.stack.push(animationKey);
         this.markAsPassed(newX, newY);
         this.endTurn();
+        this.calculatePoint();
         this.cursor.moveTo(newX, newY);
         this.stopWave(selectedBlockType);
         this.chooseMidi(this.turn, selectedBlockType);
@@ -338,6 +339,7 @@ export class GameScene extends Phaser.Scene {
     this.markAsPath(x, y);
     this.stack.pop().destroy();
     this.cursor.removeRecentBeforeDirection();
+    this.cursor.rollbackPathCnt();
     this.cursor.moveTo(x, y);
   }
 
@@ -348,6 +350,11 @@ export class GameScene extends Phaser.Scene {
       }
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
       let createdAnimationKey: Phaser.GameObjects.Sprite;
+      if (this.cursor.getPathCnt() === 0 && this.cursor.isActivated()) {
+        this.setBlockType(this.cursor.getX(), this.cursor.getY(), this.cursor.getSelected());
+        this.endTurn();
+        return;
+      }
       if (tileIndex === 99) {
         return;
       }
@@ -372,12 +379,15 @@ export class GameScene extends Phaser.Scene {
 
   private endTurn(): void {
     this.cursor.setActivatedValue(false);
+    this.stack.clear();
+    this.cursor.initActivatedValue();
+  }
+
+  private calculatePoint(): void {
     this.point += this.cursor.getPathCnt() * 100 + 1000;
     this.turn++;
     this.setFinishedTileOnFooter(this.cursor.getSelected());
     this.selected.push(this.cursor.getSelected());
-    this.stack.clear();
-    this.cursor.initActivatedValue();
   }
 
   getBlock(x: number, y: number): Block {
