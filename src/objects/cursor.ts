@@ -6,6 +6,8 @@ export class Cursor extends Phaser.GameObjects.Image {
   private currentPosition: [number, number];
   private activated: boolean;
   private selected: number;
+  private selectedX: number;
+  private selectedY: number;
   private pathCnt: number = 0;
   private beforePosition: Array<[number, number]>;
 
@@ -92,6 +94,10 @@ export class Cursor extends Phaser.GameObjects.Image {
 
   public addPathCnt(): void {
     this.pathCnt++;
+  }
+
+  public rollbackPathCnt(): void {
+    this.pathCnt--;
   }
 
   public initPathCnt(): void {
