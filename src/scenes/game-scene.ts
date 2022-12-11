@@ -277,6 +277,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleInput(): void {
+    if (this.isFinished) {
+      return;
+    }
     let oldX = this.cursor.getX();
     let oldY = this.cursor.getY();
     let dx = 0;
