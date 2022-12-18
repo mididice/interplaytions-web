@@ -1,6 +1,10 @@
 import { Result } from '../objects/result';
+import { CONST } from '../const/const';
+import { Block } from '../objects/block';
 
 export class EndScene extends Phaser.Scene {
+  private currentLevelArray: Block[] = [];
+
   private currentLevelWidth: number;
   private currentLevelHeight: number;
 
@@ -53,6 +57,8 @@ export class EndScene extends Phaser.Scene {
     this.load.image('cube10', '/assets/images/cube/10.png');
     this.load.image('cube11', '/assets/images/cube/11.png');
     this.load.image('cube12', '/assets/images/cube/12.png');
+
+    this.load.pack('preload', './assets/pack.json', 'preload');
   }
 
   create(): void {
@@ -73,6 +79,26 @@ export class EndScene extends Phaser.Scene {
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
     this.createYouHaveGot();
+
+    let tempLevel = CONST.levels[+this.map];
+    this.currentLevelArray = [];
+    this.currentLevelWidth = tempLevel.width;
+    this.currentLevelHeight = tempLevel.height;
+
+    for (let y = 0; y < this.currentLevelHeight; y++) {
+      for (let x = 0; x < this.currentLevelWidth; x++) {
+        let blockType = tempLevel.data[y][x];
+        this.currentLevelArray.push(
+            new Block({
+              scene: this,
+              x: (x * CONST.tileSize) + 712,
+              y: (y * CONST.tileSize) + 244,
+              texture: 'block',
+              type: blockType
+            })
+        )
+      }
+    }
   }
 
   update(): void {

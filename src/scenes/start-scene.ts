@@ -41,7 +41,18 @@ export class StartScene extends Phaser.Scene {
     this.load.image('howtoplay-popup1', './assets/images/scene/how-to-play-popup-1.png');
     this.load.image('howtoplay-popup2', './assets/images/scene/how-to-play-popup-2.png');
     this.load.image('howtoplay-popup3', './assets/images/scene/how-to-play-popup-3.png');
-
+    this.load.spritesheet("animationb1", "./assets/images/ani/01_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb2", "./assets/images/ani/02_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb3", "./assets/images/ani/03_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb4", "./assets/images/ani/04_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb5", "./assets/images/ani/05_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb6", "./assets/images/ani/06_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb7", "./assets/images/ani/07_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb8", "./assets/images/ani/08_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb9", "./assets/images/ani/09_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb10", "./assets/images/ani/10_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb11", "./assets/images/ani/11_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animationb12", "./assets/images/ani/12_b_animation.png", { frameWidth: 92, frameHeight: 92 });
   }
 
   create(): void {
@@ -66,6 +77,20 @@ export class StartScene extends Phaser.Scene {
     this.actionKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
+    this.playAnimation(1, 512, 145);
+    this.playAnimation(1, 1512, 345);
+    this.playAnimation(1, 912, 645);
+    this.playAnimation(1, 1512, 645);
+    this.playAnimation(1, 812, 945);
+    this.playAnimation(1, 1712, 1045);
+    this.playAnimation(10, 1012, 245);
+    this.playAnimation(10, 1312, 845);
+    this.playAnimation(4, 712, 445);
+    this.playAnimation(4, 1712, 545);
+    this.playAnimation(4, 1812, 45);
+    this.playAnimation(5, 1712, 145);
+    this.playAnimation(9, 1912, 945);
+    this.playAnimation(9, 1212, 1045);
   }
 
   update(): void {
@@ -121,5 +146,19 @@ export class StartScene extends Phaser.Scene {
     this.startOffButton.setVisible(!onOff);
     this.howtoplayOnButton.setVisible(!onOff);
     this.howtoplayOffButton.setVisible(onOff);
+  }
+
+  private playAnimation(index: number, x: number, y: number): void {
+    const animationTarget = "animationb";
+    const key = animationTarget+index;
+    this.anims.create({
+      key: key,
+      frameRate: 59,
+      frames: this.anims.generateFrameNumbers(animationTarget+index, { start: 0, end: 58 }),
+      repeat: -1
+    });
+    let tile: Phaser.GameObjects.Sprite;
+    tile = this.add.sprite(x, y, animationTarget+index);
+    tile.play(animationTarget+index);
   }
 }
