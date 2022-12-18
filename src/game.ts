@@ -3,6 +3,7 @@ import { BootScene } from './scenes/boot-scene';
 import { GameScene } from './scenes/game-scene';
 import { StartScene } from './scenes/start-scene';
 import { EndScene } from './scenes/end-scene';
+import { WebFontLoaderPlugin } from 'phaser3-webfont-loader';
 
 const config: Phaser.Types.Core.GameConfig = {
   title: 'Interplaytions',
@@ -19,7 +20,14 @@ const config: Phaser.Types.Core.GameConfig = {
   parent: 'game',
   scene: [StartScene, BootScene, GameScene, EndScene],
   backgroundColor: '#24232e',
-  render: { pixelArt: true, antialias: false }
+  render: { pixelArt: true, antialias: false },
+  plugins: {
+    global: [{
+      key: 'WebFontLoader',
+      plugin: WebFontLoaderPlugin,
+      start: true
+    }]
+  }
 };
 
 export class Game extends Phaser.Game {
