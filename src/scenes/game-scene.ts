@@ -93,6 +93,8 @@ export class GameScene extends Phaser.Scene {
     this.load.image('cube10', './assets/images/cube/10.png');
     this.load.image('cube11', './assets/images/cube/11.png');
     this.load.image('cube12', './assets/images/cube/12.png');
+
+    this.loadFont("BauhausStd", "./assets/BauhausStd-Bold.otf");
   }
 
 
@@ -108,13 +110,13 @@ export class GameScene extends Phaser.Scene {
       setOrigin(0);
     this.add.text(1171, 45, 'TIME LEFT', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
       setOrigin(0);
-    this.add.text(1371, 45, 'YOUR SCORE', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+    this.add.text(1371, 45, 'YOUR SCORE', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
       setOrigin(0);
-    this.pointTxt = this.add.text(1371, 77, '0', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+    this.pointTxt = this.add.text(1371, 77, '0', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
       setOrigin(0);
-    this.turnTxt = this.add.text(1071, 77, '0', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+    this.turnTxt = this.add.text(1071, 77, '0', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
       setOrigin(0);
-    this.timeTxt = this.add.text(1171, 77, '', {color: '#fe5a45', fontSize: '22px', fontFamily: 'Bauhaus'}).
+    this.timeTxt = this.add.text(1171, 77, '', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
       setOrigin(0);
     this.timeEvent = this.time.addEvent({delay: 10000000, callbackScope: this, loop: true})
 
@@ -277,9 +279,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleInput(): void {
-    if (this.isFinished) {
-      return;
-    }
     let oldX = this.cursor.getX();
     let oldY = this.cursor.getY();
     let dx = 0;
@@ -299,6 +298,10 @@ export class GameScene extends Phaser.Scene {
       dy = 1;
     }
     this.PressActionKey();
+    
+    if (this.isFinished) {
+      return;
+    }
 
     if (dx !== 0 || dy !== 0) {
       let newX = oldX + dx;
@@ -314,8 +317,8 @@ export class GameScene extends Phaser.Scene {
         let animationKey = this.getAnimationKey(nextBlockType, newX, newY);
         this.stack.push(animationKey);
         this.markAsPassed(newX, newY);
-        this.endTurn();
         this.calculatePoint();
+        this.endTurn();
         this.cursor.moveTo(newX, newY);
         this.stopWave(selectedBlockType);
         this.chooseMidi(this.turn, selectedBlockType);
@@ -331,6 +334,7 @@ export class GameScene extends Phaser.Scene {
       if (nextBlockType !== 0) return;
       this.markAsPassed(oldX, oldY);
       this.cursor.addPathCnt();
+      console.log(this.cursor.getPathCnt());
       this.cursor.setBeforeDirection(oldX, oldY);
       let animationKey = this.getAnimationKey(nextBlockType, newX, newY);
       this.stack.push(animationKey);
@@ -541,5 +545,14 @@ export class GameScene extends Phaser.Scene {
       }
     }
     return false;
+  }
+
+  loadFont(name: string, url: string): void {
+    var newFont = new FontFace(name, `url(${url})`);
+    newFont.load().then(function (loaded) {
+        document.fonts.add(loaded);
+    }).catch(function (error) {
+        return error;
+    });
   }
 }
