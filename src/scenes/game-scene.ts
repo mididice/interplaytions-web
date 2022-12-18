@@ -353,7 +353,7 @@ export class GameScene extends Phaser.Scene {
   private PressActionKey(): void {
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       if (this.isFinished) {
-        this.scene.start('EndScene', {"map":1, "score": this.point, "selected": this.selected});
+        this.scene.start('EndScene', {"map":0, "score": this.point, "selected": this.selected});
       }
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
       let createdAnimationKey: Phaser.GameObjects.Sprite;
