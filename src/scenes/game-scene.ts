@@ -106,7 +106,6 @@ export class GameScene extends Phaser.Scene {
     this.add.text(45, 1000, 'YOU HAVE GOT\n7 TILES', {color: '#121212', fontSize: '22px', fontFamily: 'BauhausStd'}).
     setOrigin(0);
     this.add.text(1071,45, 'TURN', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
-        // setFontStyle('BauhausStd-Bold').
       setOrigin(0);
     this.add.text(1171, 45, 'TIME LEFT', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
       setOrigin(0);
@@ -247,6 +246,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   /**
+   * 지나간 타일 애니메이션 정지 
+   */
+  private stopAllAnimcation(): void {
+    while (this.stack.size() > 0) {
+      this.stopAnimation(this.stack.pop());
+    }
+    this.stack.clear();
+  }
+
+  /**
    * 애니메이션 제거
    */
   private removeAnimation(tile: Phaser.GameObjects.Sprite): void {
@@ -322,7 +331,6 @@ export class GameScene extends Phaser.Scene {
         this.cursor.moveTo(newX, newY);
         this.stopWave(selectedBlockType);
         this.chooseMidi(this.turn, selectedBlockType);
-        this.stopAnimation(animationKey)
         return;
       }
       
@@ -334,7 +342,6 @@ export class GameScene extends Phaser.Scene {
       if (nextBlockType !== 0) return;
       this.markAsPassed(oldX, oldY);
       this.cursor.addPathCnt();
-      console.log(this.cursor.getPathCnt());
       this.cursor.setBeforeDirection(oldX, oldY);
       let animationKey = this.getAnimationKey(nextBlockType, newX, newY);
       this.stack.push(animationKey);
@@ -386,8 +393,8 @@ export class GameScene extends Phaser.Scene {
 
   private endTurn(): void {
     this.cursor.setActivatedValue(false);
-    this.stack.clear();
     this.cursor.initActivatedValue();
+    this.stopAllAnimcation();
   }
 
   private calculatePoint(): void {
