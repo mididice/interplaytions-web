@@ -62,6 +62,21 @@ export class StartScene extends Phaser.Scene {
     this.bgm.resume()
     this.bgm.play({"loop": true});
     this.add.image(0, 0, 'background').setOrigin(0, 0);
+    this.playAnimation(1, 512, 145);
+    this.playAnimation(1, 1512, 345);
+    this.playAnimation(1, 912, 645);
+    this.playAnimation(1, 1512, 645);
+    this.playAnimation(1, 812, 945);
+    this.playAnimation(1, 1712, 1045);
+    this.playAnimation(10, 1012, 245);
+    this.playAnimation(10, 1312, 845);
+    this.playAnimation(4, 712, 445);
+    this.playAnimation(4, 1712, 545);
+    this.playAnimation(4, 1812, 45);
+    this.playAnimation(5, 1712, 145);
+    this.playAnimation(9, 1912, 945);
+    this.playAnimation(9, 1212, 1045);
+
     this.add.image(67, 35, 'badge-1').setOrigin(0).setScrollFactor(0);
     this.add.image(67, 100, 'badge-2').setOrigin(0).setScrollFactor(0);
     this.add.image(67, 300, 'title-rectangle').setOrigin(0).setScrollFactor(0);
@@ -78,20 +93,6 @@ export class StartScene extends Phaser.Scene {
     this.actionKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
-    this.playAnimation(1, 512, 145);
-    this.playAnimation(1, 1512, 345);
-    this.playAnimation(1, 912, 645);
-    this.playAnimation(1, 1512, 645);
-    this.playAnimation(1, 812, 945);
-    this.playAnimation(1, 1712, 1045);
-    this.playAnimation(10, 1012, 245);
-    this.playAnimation(10, 1312, 845);
-    this.playAnimation(4, 712, 445);
-    this.playAnimation(4, 1712, 545);
-    this.playAnimation(4, 1812, 45);
-    this.playAnimation(5, 1712, 145);
-    this.playAnimation(9, 1912, 945);
-    this.playAnimation(9, 1212, 1045);
   }
 
   update(): void {
