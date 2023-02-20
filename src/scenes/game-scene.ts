@@ -30,6 +30,8 @@ export class GameScene extends Phaser.Scene {
   private stack: Stack<Phaser.GameObjects.Sprite>;
   private selected: Array<number> = [];
   private isFinished: Boolean;
+  private synths: any = [];
+  private lastElapsedTime: any;
   constructor() {
     super({
       key: 'GameScene'
@@ -159,7 +161,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(): void {
-    this.countTimer();
+    this.countTimer();  
     this.handleInput();
     this.displayPoint();
     this.displayTurn();
@@ -176,6 +178,9 @@ export class GameScene extends Phaser.Scene {
 
   private countTimer(): void {
     let elapsedTime = this.timeEvent.getElapsedSeconds();
+    if (this.isFinished == true) {
+      elapsedTime = this.lastElapsedTime;
+    }
     let currentTime = this.timeLeft - Math.floor(elapsedTime);
     let minute = Math.floor(currentTime / 60);
     let second = Math.floor(currentTime - (minute * 60));
@@ -197,11 +202,12 @@ export class GameScene extends Phaser.Scene {
   private allTilesMatchedFinish(): void {
     let totalTileCnt = 5;
     if (this.turn === totalTileCnt) {
-      this.theEnd();
+      //this.theEnd();
       this.add.image(665, 429, 'gameover1').setOrigin(0).setScrollFactor(0);
       this.scene.stop("game-scene");
       this.turn = 0;
       this.isFinished = true;
+      this.lastElapsedTime = this.timeEvent.getElapsedSeconds();
     }
   }
 
@@ -268,6 +274,8 @@ export class GameScene extends Phaser.Scene {
    * 웨이브파일 재생
    */
   private playWave(tileIndex: number): void {
+    this.disposeSynths();
+    this.sound.stopAll();
     this.tileSound = this.sound.add('wavFiles_'+tileIndex, {"loop": true});
     this.tileSound.play();
   }
@@ -373,8 +381,8 @@ export class GameScene extends Phaser.Scene {
         return;
       }
       if (tileIndex !== 0) {
-        this.playWave(tileIndex);
         if (!this.cursor.isActivated()) {
+          this.playWave(tileIndex);
           if (!this.checkNowayRoute(this.cursor.getX(), this.cursor.getY())) this.nowayRouteFinish();
           this.startTurn();
           this.markAsPassed(this.cursor.getX(), this.cursor.getY());
@@ -395,6 +403,7 @@ export class GameScene extends Phaser.Scene {
     this.cursor.setActivatedValue(false);
     this.cursor.initActivatedValue();
     this.stopAllAnimcation();
+    this.sound.stopAll();
   }
 
   private calculatePoint(): void {
@@ -491,38 +500,47 @@ export class GameScene extends Phaser.Scene {
     this.api.connect(sequence, index)
     .then((res) => res.json())
     .then(result => {
-      this.playMidi(result);
+      this.playMidi(result, sequence);
     });
   }
 
-  
+  private disposeSynths(): void {
+    while(this.synths.length) {
+      const synth = this.synths.shift();
+			synth.dispose();
+    }
+  }
+
   /**
-   * 서버에 호출하여 지금까지 생성한 미디파일을 합쳐서 연주합니다.
+   * 서버를 호출하여 미디파일을 연주합니다.
+   * 게임에서 5번째 호출인 경우 지금까지 생성한 미디파일을 합쳐서 연주합니다.
    */
-   private theEnd(): void {
-    this.api.combine()
-    .then((res) => res.json())
-    .then(result => {
-      this.playMidi(result);
-    });
-  }
-
-
-  private async playMidi(url : string): Promise<void> {
-    const midi = await Midi.fromUrl(url)
-    const now = Tone.now() + 0.5
+  private async playMidi(url : string, sequence: number): Promise<void> {
+    this.disposeSynths();
     const env = {
       "oscillator":{"type": "square16"},
       "envolope":{"attack": 0.005, "decay":0.1, "sustain":0.3, "release":1}
     }
-    
-		midi.tracks.forEach(track => {
-      const synth = new Tone.FMSynth().toDestination();
-      synth.set({oscillator: { type:"square8" }})
-			track.notes.forEach(note => {
-			  synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
-			})
-		})
+    const now = Tone.now() + 0.5
+    await Midi.fromUrl(url)
+    .then(midi => {
+      midi.tracks.forEach(track => {
+        const synth = new Tone.FMSynth().toDestination();
+        synth.set({oscillator: { type:"square8" }});
+        track.notes.forEach(note => {
+          synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
+        });
+        this.synths.push(synth);
+      })
+    }).then( midi => {
+      if (sequence === 5) {
+        this.api.combine()
+        .then((res) => res.json())
+        .then(result => {
+          this.playMidi(result, 0);
+        });  
+      }
+    })
   }
 
   private dx: number[] = [1, -1, 0, 0];

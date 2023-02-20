@@ -32,7 +32,7 @@ module.exports = {
         changeOrigin: true,
       },
       '/code/': {
-        target: 'http://localhost',
+        target: 'http://localhost:8001',
         changeOrigin: true,
       }
     }
