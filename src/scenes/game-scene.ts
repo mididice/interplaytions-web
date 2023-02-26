@@ -14,24 +14,21 @@ export class GameScene extends Phaser.Scene {
   private cursor: Cursor;
   private point: number = 0;
   private turn: number = 0;
-  private footerTileCooridate: number[] = [0, 364, 503, 642, 781, 920];
-
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private actionKey: Phaser.Input.Keyboard.Key;
-  private activatedBlockId: number;
   private timeTxt: Phaser.GameObjects.Text;
   private pointTxt: Phaser.GameObjects.Text;
   private turnTxt: Phaser.GameObjects.Text;
+  private gotTilesTxt: Phaser.GameObjects.Text;
   private timeLeft: number;
   private timeEvent: Phaser.Time.TimerEvent;
   private api: Api;
-  private activatedAnimation: Phaser.GameObjects.Sprite;
   private tileSound: Phaser.Sound.BaseSound;
   private stack: Stack<Phaser.GameObjects.Sprite>;
   private selected: Array<number> = [];
   private isFinished: Boolean;
   private synths: any = [];
-  private lastElapsedTime: any;
+  private lastElapsedTime: number;
   constructor() {
     super({
       key: 'GameScene'
@@ -42,29 +39,29 @@ export class GameScene extends Phaser.Scene {
     this.load.image('title', './assets/images/scene/title.png');                
     this.load.image('footer', './assets/images/scene/footer.png');
     this.load.spritesheet("animation1", "./assets/images/ani/01_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation2", "./assets/images/ani/02_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation3", "./assets/images/ani/03_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation4", "./assets/images/ani/04_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation5", "./assets/images/ani/05_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation6", "./assets/images/ani/06_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation7", "./assets/images/ani/07_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation8", "./assets/images/ani/08_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation9", "./assets/images/ani/09_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation10", "./assets/images/ani/10_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation11", "./assets/images/ani/11_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animation12", "./assets/images/ani/12_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb1", "./assets/images/ani/01_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb2", "./assets/images/ani/02_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb3", "./assets/images/ani/03_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb4", "./assets/images/ani/04_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb5", "./assets/images/ani/05_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb6", "./assets/images/ani/06_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb7", "./assets/images/ani/07_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb8", "./assets/images/ani/08_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb9", "./assets/images/ani/09_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb10", "./assets/images/ani/10_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb11", "./assets/images/ani/11_b_animation.png", { frameWidth: 92, frameHeight: 92 });
-    this.load.spritesheet("animationb12", "./assets/images/ani/12_b_animation.png", { frameWidth: 92, frameHeight: 92 });
+    this.load.spritesheet("animation2", "./assets/images/ani/02_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation3", "./assets/images/ani/03_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation4", "./assets/images/ani/04_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation5", "./assets/images/ani/05_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation6", "./assets/images/ani/06_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation7", "./assets/images/ani/07_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation8", "./assets/images/ani/08_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation9", "./assets/images/ani/09_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation10", "./assets/images/ani/10_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation11", "./assets/images/ani/11_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animation12", "./assets/images/ani/12_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb1", "./assets/images/ani/01_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb2", "./assets/images/ani/02_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb3", "./assets/images/ani/03_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb4", "./assets/images/ani/04_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb5", "./assets/images/ani/05_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb6", "./assets/images/ani/06_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb7", "./assets/images/ani/07_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb8", "./assets/images/ani/08_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb9", "./assets/images/ani/09_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb10", "./assets/images/ani/10_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb11", "./assets/images/ani/11_b_animation.png", { frameWidth: 90, frameHeight: 90 });
+    this.load.spritesheet("animationb12", "./assets/images/ani/12_b_animation.png", { frameWidth: 90, frameHeight: 90 });
     this.load.image('gameover1', './assets/images/scene/gameover-popup-connected.png');                
     this.load.image('gameover2', './assets/images/scene/gameover-popup-non-left.png');                
     this.load.image('gameover3', './assets/images/scene/gameover-popup-timeup.png');
@@ -105,7 +102,7 @@ export class GameScene extends Phaser.Scene {
 
     this.add.image(45, 45, 'title').setOrigin(0).setScrollFactor(0);
     this.add.image(0, 980, 'footer').setOrigin(0).setScrollFactor(0);
-    this.add.text(45, 1000, 'YOU HAVE GOT\n7 TILES', {color: '#121212', fontSize: '22px', fontFamily: 'BauhausStd'}).
+    this.gotTilesTxt = this.add.text(45, 1000, 'YOU HAVE GOT\n0 TILES', {color: '#121212', fontSize: '22px', fontFamily: 'BauhausStd'}).
     setOrigin(0);
     this.add.text(1071,45, 'TURN', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
       setOrigin(0);
@@ -174,6 +171,7 @@ export class GameScene extends Phaser.Scene {
 
   private displayTurn(): void {
     this.turnTxt.setText(this.turn.toString());
+    this.gotTilesTxt.setText("YOU HAVE GOT\n"+this.turn+" TILES");
   }
 
   private countTimer(): void {
@@ -197,6 +195,7 @@ export class GameScene extends Phaser.Scene {
     this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
     this.scene.stop("game-scene");
     this.isFinished = true;
+    this.lastElapsedTime = this.timeEvent.getElapsedSeconds();
   }
 
   private allTilesMatchedFinish(): void {
@@ -215,6 +214,7 @@ export class GameScene extends Phaser.Scene {
     this.add.image(655, 429, 'gameover2').setOrigin(0).setScrollFactor(0);
     this.scene.stop("game-scene");
     this.isFinished = true;
+    this.lastElapsedTime = this.timeEvent.getElapsedSeconds();
   }
 
   /**
@@ -302,7 +302,6 @@ export class GameScene extends Phaser.Scene {
     let dy = 0;
     let width = CONST.levels[CONST.currentLevel].width;
     let height = CONST.levels[CONST.currentLevel].height;
-    let createdAnimationKey: Phaser.GameObjects.Sprite;
 
     if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) {
       dx = 1;
@@ -372,14 +371,17 @@ export class GameScene extends Phaser.Scene {
       }
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
       let createdAnimationKey: Phaser.GameObjects.Sprite;
+      // cancel selected tile
       if (this.cursor.getPathCnt() === 0 && this.cursor.isActivated()) {
         this.setBlockType(this.cursor.getX(), this.cursor.getY(), this.cursor.getSelected());
         this.endTurn();
         return;
       }
+      // prevent selected tile and path
       if (tileIndex === 99) {
         return;
       }
+      // select tile
       if (tileIndex !== 0) {
         if (!this.cursor.isActivated()) {
           this.playWave(tileIndex);
@@ -400,9 +402,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private endTurn(): void {
+    this.stopAllAnimcation();
     this.cursor.setActivatedValue(false);
     this.cursor.initActivatedValue();
-    this.stopAllAnimcation();
     this.sound.stopAll();
   }
 
@@ -427,17 +429,6 @@ export class GameScene extends Phaser.Scene {
 
   setBlockType(x: number, y: number, type: number): void {
     this.currentLevelArray[y * this.currentLevelWidth + x].setType(type);
-  }
-
-  getBlockTypeById(id: number): number {
-    return this.currentLevelArray[id].getType();
-  }
-
-  swapTwoBlocks(blockId0: number, blockId1: number): void {
-    let type0 = this.getBlockTypeById(blockId0);
-    let type1 = this.getBlockTypeById(blockId1);
-    this.currentLevelArray[blockId0].setType(type1);
-    this.currentLevelArray[blockId1].setType(type0);
   }
 
   private markAsPassed(x: number, y: number): void {
