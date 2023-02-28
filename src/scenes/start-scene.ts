@@ -29,8 +29,8 @@ export class StartScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('background', './assets/images/scene/landing-page-grid.png');
-    this.load.image('badge-1', './assets/images/scene/badge-1.png');
-    this.load.image('badge-2', './assets/images/scene/badge-2.png');
+    this.load.image('badge-1', './assets/images/scene/badge_01.png');
+    this.load.image('badge-2', './assets/images/scene/badge_02.png');
     this.load.image('badge-3', './assets/images/scene/badge-3.png');
     this.load.image('howtoplay-off', './assets/images/scene/howtoplay-off.png');
     this.load.image('howtoplay-on', './assets/images/scene/howtoplay-on.png');
