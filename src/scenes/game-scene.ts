@@ -196,6 +196,7 @@ export class GameScene extends Phaser.Scene {
     this.scene.stop("game-scene");
     this.isFinished = true;
     this.lastElapsedTime = this.timeEvent.getElapsedSeconds();
+    this.moveNextSceneByTime();
   }
 
   private allTilesMatchedFinish(): void {
@@ -207,6 +208,7 @@ export class GameScene extends Phaser.Scene {
       this.turn = 0;
       this.isFinished = true;
       this.lastElapsedTime = this.timeEvent.getElapsedSeconds();
+      this.moveNextSceneByTime();
     }
   }
 
@@ -215,7 +217,18 @@ export class GameScene extends Phaser.Scene {
     this.scene.stop("game-scene");
     this.isFinished = true;
     this.lastElapsedTime = this.timeEvent.getElapsedSeconds();
+    this.moveNextSceneByTime();
   }
+
+  private moveNextScene(): void {
+    this.scene.start('EndScene', {"map":0, "score": this.point, "selected": this.selected});
+  }
+
+  private moveNextSceneByTime(): void {
+    const myTimeout = setTimeout(this.moveNextScene, 50000);
+  }
+  
+  
 
   /**
    * 애니메이션 실행
@@ -347,7 +360,7 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (nextBlockType !== 0) return;
-      this.markAsPassed(oldX, oldY);
+      this.markAsPassed(newX, newY);
       this.cursor.addPathCnt();
       this.cursor.setBeforeDirection(oldX, oldY);
       let animationKey = this.getAnimationKey(nextBlockType, newX, newY);
@@ -367,7 +380,7 @@ export class GameScene extends Phaser.Scene {
   private PressActionKey(): void {
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       if (this.isFinished) {
-        this.scene.start('EndScene', {"map":0, "score": this.point, "selected": this.selected});
+        this.moveNextScene();
       }
       const tileIndex = this.getBlockType(this.cursor.getX(), this.cursor.getY());
       let createdAnimationKey: Phaser.GameObjects.Sprite;

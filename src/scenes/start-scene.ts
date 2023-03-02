@@ -1,13 +1,7 @@
 export class StartScene extends Phaser.Scene {
-  private currentLevelWidth: number;
-  private currentLevelHeight: number;
-
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private actionKey: Phaser.Input.Keyboard.Key;
-  private activatedBlockId: number;
 
-  private layer: Phaser.GameObjects.Container;
-  private background: Phaser.GameObjects.Image;
   private startOnButton: Phaser.GameObjects.Image;
   private startOffButton: Phaser.GameObjects.Image;
   private howtoplayOnButton: Phaser.GameObjects.Image;
@@ -59,8 +53,13 @@ export class StartScene extends Phaser.Scene {
     this.prevY = 1;
     this.howtoplayStep = 0;
     this.bgm = this.sound.add('interplaytions_bgm');
-    this.bgm.resume()
-    this.bgm.play({"loop": true});
+    if (!this.sound.locked) {
+      this.bgm.play({"loop": true});
+    } else {
+      this.sound.once(Phaser.Sound.Events.UNLOCKED, () => {
+        this.bgm.play({"loop": true});
+      });
+    }
     this.add.image(0, 0, 'background').setOrigin(0, 0);
     this.playAnimation(1, 512, 145);
     this.playAnimation(1, 1512, 345);
@@ -123,10 +122,8 @@ export class StartScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       if (this.prevY === 1) {
-        this.scene.start('BootScene');
         this.bgm.stop();
-        this.bgm.resetConfig();
-        this.bgm.destroy();
+        this.scene.start('BootScene');
       } else if (this.prevY === -1) {
         this.howtoplayStep += 1;
         

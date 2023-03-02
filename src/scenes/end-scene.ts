@@ -10,9 +10,7 @@ export class EndScene extends Phaser.Scene {
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private actionKey: Phaser.Input.Keyboard.Key;
-  private activatedBlockId: number;
-
-  private background: Phaser.GameObjects.Image;
+  private gotTilesTxt: Phaser.GameObjects.Text;
   private homeOnButton: Phaser.GameObjects.Image;
   private homeOffButton: Phaser.GameObjects.Image;
   private restartOnButton: Phaser.GameObjects.Image;
@@ -149,7 +147,9 @@ export class EndScene extends Phaser.Scene {
 
   private createYouHaveGot(): void {
     const selecetedTiles = this.selected;
-    for (let i = 0; i< selecetedTiles.length; i++) {
+    const tileLength = selecetedTiles.length;
+    this.gotTilesTxt = this.add.text(45, 1000, 'YOU HAVE GOT\n'+tileLength+' TILES', {color: '#121212', fontSize: '22px', fontFamily: 'BauhausStd'});
+    for (let i = 0; i< tileLength; i++) {
       this.add.image(350+(i*139), 985, "cube"+selecetedTiles[i]).setOrigin(0).setScrollFactor(0);
     }
   }
