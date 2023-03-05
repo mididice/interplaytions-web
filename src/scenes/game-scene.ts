@@ -193,6 +193,7 @@ export class GameScene extends Phaser.Scene {
 
   private timeOverFinish(): void {
     this.add.image(665, 429, 'gameover3').setOrigin(0).setScrollFactor(0);
+    this.sound.stopAll();
     this.scene.stop("game-scene");
     this.isFinished = true;
     this.lastElapsedTime = this.timeEvent.getElapsedSeconds();
@@ -214,6 +215,7 @@ export class GameScene extends Phaser.Scene {
 
   private nowayRouteFinish(): void {
     this.add.image(655, 429, 'gameover2').setOrigin(0).setScrollFactor(0);
+    this.sound.stopAll();
     this.scene.stop("game-scene");
     this.isFinished = true;
     this.lastElapsedTime = this.timeEvent.getElapsedSeconds();
@@ -521,16 +523,17 @@ export class GameScene extends Phaser.Scene {
    */
   private async playMidi(url : string, sequence: number): Promise<void> {
     this.disposeSynths();
-    const env = {
-      "oscillator":{"type": "square16"},
-      "envolope":{"attack": 0.005, "decay":0.1, "sustain":0.3, "release":1}
-    }
     const now = Tone.now() + 0.5
     await Midi.fromUrl(url)
     .then(midi => {
       midi.tracks.forEach(track => {
         const synth = new Tone.FMSynth().toDestination();
-        synth.set({oscillator: { type:"square8" }});
+        synth.set({envelope: {
+          attack: 0.02,
+          decay: 0.1,
+          sustain: 0.3,
+          release: 1
+        }});
         track.notes.forEach(note => {
           synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
         });
