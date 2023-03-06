@@ -119,8 +119,8 @@ export class GameScene extends Phaser.Scene {
     this.timeEvent = this.time.addEvent({delay: 10000000, callbackScope: this, loop: true})
 
     this.api = new Api();
-
-    let tempLevel = CONST.levels[CONST.currentLevel];
+    let nowLevel = Math.floor(Math.random() * 5);
+    let tempLevel = CONST.levels[nowLevel];
     this.currentLevelArray = [];
     this.currentLevelWidth = tempLevel.width;
     this.currentLevelHeight = tempLevel.height;
