@@ -122,7 +122,6 @@ export class StartScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       if (this.prevY === 1) {
-        this.bgm.stop();
         this.scene.start('BootScene');
       } else if (this.prevY === -1) {
         this.howtoplayStep += 1;

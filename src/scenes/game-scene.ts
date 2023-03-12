@@ -36,6 +36,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload(): void {
+    this.sound.stopByKey("interplaytions_bgm");
     this.load.image('title', './assets/images/scene/title.png');                
     this.load.image('footer', './assets/images/scene/footer.png');
     this.load.spritesheet("animation1", "./assets/images/ani/01_animation.png", { frameWidth: 92, frameHeight: 92 });
