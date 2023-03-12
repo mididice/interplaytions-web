@@ -46,6 +46,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   update(): void {
+    this.sound.stopAll();
     this.scene.start('GameScene');
   }
 

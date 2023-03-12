@@ -3,8 +3,8 @@ import { Block } from '../objects/block';
 import { Cursor } from '../objects/cursor';
 import { Api } from '../objects/api';
 import { Stack } from '../objects/stack';
-import { Midi } from '@tonejs/midi'
 import * as Tone from 'tone'
+import { Midi } from '@tonejs/midi'
 
 
 export class GameScene extends Phaser.Scene {
@@ -36,7 +36,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.sound.stopByKey("interplaytions_bgm");
     this.load.image('title', './assets/images/scene/title.png');                
     this.load.image('footer', './assets/images/scene/footer.png');
     this.load.spritesheet("animation1", "./assets/images/ani/01_animation.png", { frameWidth: 92, frameHeight: 92 });

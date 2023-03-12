@@ -52,14 +52,7 @@ export class StartScene extends Phaser.Scene {
   create(): void {
     this.prevY = 1;
     this.howtoplayStep = 0;
-    this.bgm = this.sound.add('interplaytions_bgm');
-    if (!this.sound.locked) {
-      this.bgm.play({"loop": true});
-    } else {
-      this.sound.once(Phaser.Sound.Events.UNLOCKED, () => {
-        this.bgm.play({"loop": true});
-      });
-    }
+    this.bgm = this.sound.add('interplaytions_bgm', {"loop": true});
     this.add.image(0, 0, 'background').setOrigin(0, 0);
     this.playAnimation(1, 512, 145);
     this.playAnimation(1, 1512, 345);
@@ -92,6 +85,7 @@ export class StartScene extends Phaser.Scene {
     this.actionKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
+    this.bgm.play();
   }
 
   update(): void {
@@ -122,6 +116,8 @@ export class StartScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       if (this.prevY === 1) {
+        this.sound.stopAll();
+        this.scene.stop("StartScene");
         this.scene.start('BootScene');
       } else if (this.prevY === -1) {
         this.howtoplayStep += 1;
