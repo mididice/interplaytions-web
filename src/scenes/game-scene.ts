@@ -357,6 +357,7 @@ export class GameScene extends Phaser.Scene {
       }
       
       if (newX === this.cursor.getBeforeX() && newY === this.cursor.getBeforeY()) {
+        this.markAsPath(oldX, oldY);
         this.rollback(newX, newY);
         return;
       }
@@ -372,7 +373,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private rollback(x: number, y: number): void {
-    this.markAsPath(x, y);
     this.stack.pop().destroy();
     this.cursor.removeRecentBeforeDirection();
     this.cursor.rollbackPathCnt();
