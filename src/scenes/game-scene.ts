@@ -400,7 +400,10 @@ export class GameScene extends Phaser.Scene {
       if (tileIndex !== 0) {
         if (!this.cursor.isActivated()) {
           this.playWave(tileIndex);
-          if (!this.checkNowayRoute(this.cursor.getX(), this.cursor.getY())) this.nowayRouteFinish();
+          if (!this.checkNowayRoute(this.cursor.getX(), this.cursor.getY())) {
+            this.nowayRouteFinish();
+            return;
+          }
           this.startTurn();
           this.markAsPassed(this.cursor.getX(), this.cursor.getY());
           this.cursor.setSelected(tileIndex);
