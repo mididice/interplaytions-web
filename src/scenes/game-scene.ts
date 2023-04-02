@@ -24,6 +24,7 @@ export class GameScene extends Phaser.Scene {
   private timeEvent: Phaser.Time.TimerEvent;
   private api: Api;
   private tileSound: Phaser.Sound.BaseSound;
+  private blipSound: Phaser.Sound.BaseSound;
   private stack: Stack<Phaser.GameObjects.Sprite>;
   private selected: Array<number> = [];
   private isFinished: Boolean;
@@ -77,6 +78,7 @@ export class GameScene extends Phaser.Scene {
     this.load.audio('wavFiles_10', './assets/sound/wavFiles_10.wav');
     this.load.audio('wavFiles_11', './assets/sound/wavFiles_11.wav');
     this.load.audio('wavFiles_12', './assets/sound/wavFiles_12.wav');
+    this.load.audio('blip', './assets/sound/interplaytions_blip4.wav');
 
     this.timeLeft = 300;
     this.stack = new Stack<Phaser.GameObjects.Sprite>();
@@ -117,6 +119,7 @@ export class GameScene extends Phaser.Scene {
     this.timeTxt = this.add.text(1171, 77, '', {color: '#fe5a45', fontSize: '22px', fontFamily: 'BauhausStd'}).
       setOrigin(0);
     this.timeEvent = this.time.addEvent({delay: 10000000, callbackScope: this, loop: true})
+    this.blipSound = this.sound.add('blip');
 
     this.api = new Api();
     let nowLevel = Math.floor(Math.random() * 5);
@@ -338,6 +341,7 @@ export class GameScene extends Phaser.Scene {
       let newX = oldX + dx;
       let newY = oldY + dy;
       if (newX < 0 || newX >= width || newY < 0 || newY >= height) return;
+      this.blipSound.play();
       if (!this.cursor.isActivated()) {
         this.cursor.moveTo(newX, newY);
         return;
