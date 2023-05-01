@@ -12,10 +12,12 @@ export class GameScene extends Phaser.Scene {
   private currentLevelWidth: number;
   private currentLevelHeight: number;
   private cursor: Cursor;
+  private map: number = 0;
   private point: number = 0;
   private turn: number = 0;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private actionKey: Phaser.Input.Keyboard.Key;
+  private actionBackKey: Phaser.Input.Keyboard.Key;
   private timeTxt: Phaser.GameObjects.Text;
   private pointTxt: Phaser.GameObjects.Text;
   private turnTxt: Phaser.GameObjects.Text;
@@ -123,6 +125,7 @@ export class GameScene extends Phaser.Scene {
 
     this.api = new Api();
     let nowLevel = Math.floor(Math.random() * 5);
+    this.map = nowLevel;
     let tempLevel = CONST.levels[nowLevel];
     this.currentLevelArray = [];
     this.currentLevelWidth = tempLevel.width;
@@ -146,6 +149,9 @@ export class GameScene extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.actionKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
+    this.actionBackKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ENTER
     );
     this.cursor = new Cursor({
       scene: this,
@@ -226,11 +232,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   private moveNextScene(): void {
-    this.scene.start('EndScene', {"map":0, "score": this.point, "selected": this.selected});
+    this.scene.stop('GameScene');
+    this.scene.start('EndScene', {"map": this.map, "score": this.point, "selected": this.selected});
   }
 
   private moveNextSceneByTime(): void {
-    const myTimeout = setTimeout(this.moveNextScene, 50000);
+    if(this.isFinished) {
+      var timer = this.time.delayedCall(5000, this.moveNextScene, [], this);
+    }
+  }
+
+  private moveStartScene(): void {
+    this.disposeSynths();
+    this.scene.stop('GameScene');
+    this.scene.start('StartScene');
   }
   
   
@@ -416,6 +431,9 @@ export class GameScene extends Phaser.Scene {
         } 
       }
     }
+    if (Phaser.Input.Keyboard.JustDown(this.actionBackKey)) {
+      this.moveStartScene();
+    }
   }
 
   private startTurn(): void {
@@ -546,15 +564,7 @@ export class GameScene extends Phaser.Scene {
         });
         this.synths.push(synth);
       })
-    }).then( midi => {
-      if (sequence === 5) {
-        this.api.combine()
-        .then((res) => res.json())
-        .then(result => {
-          this.playMidi(result, 0);
-        });  
-      }
-    })
+    });
   }
 
   private dx: number[] = [1, -1, 0, 0];

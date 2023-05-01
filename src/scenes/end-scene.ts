@@ -1,6 +1,10 @@
 import { Result } from '../objects/result';
 import { CONST } from '../const/const';
 import { Block } from '../objects/block';
+import { Api } from '../objects/api';
+import * as Tone from 'tone'
+import { Midi } from '@tonejs/midi'
+
 
 export class EndScene extends Phaser.Scene {
   private currentLevelArray: Block[] = [];
@@ -19,6 +23,8 @@ export class EndScene extends Phaser.Scene {
   private map: string;
   private score: number;
   private selected: Array<number>;
+  private synths: any = [];
+  private api: Api;
 
   constructor() {
     super({
@@ -77,6 +83,7 @@ export class EndScene extends Phaser.Scene {
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
     this.createYouHaveGot();
+    this.api = new Api();
 
     let tempLevel = CONST.levels[+this.map];
     this.currentLevelArray = [];
@@ -97,6 +104,7 @@ export class EndScene extends Phaser.Scene {
         )
       }
     }
+    this.combineMidi(this.selected);
   }
 
   update(): void {
@@ -131,8 +139,10 @@ export class EndScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.actionKey)) {
       if (this.prevY === 1) {
+        this.disposeSynths();
         this.scene.start('StartScene');
       } else if (this.prevY === -1) {
+        this.disposeSynths();
         this.scene.start('BootScene');
       }
     }
@@ -151,6 +161,55 @@ export class EndScene extends Phaser.Scene {
     this.gotTilesTxt = this.add.text(45, 1000, 'YOU HAVE GOT\n'+tileLength+' TILES', {color: '#121212', fontSize: '22px', fontFamily: 'BauhausStd'});
     for (let i = 0; i< tileLength; i++) {
       this.add.image(350+(i*139), 985, "cube"+selecetedTiles[i]).setOrigin(0).setScrollFactor(0);
+    }
+  }
+
+  /**
+   * 서버를 호출하여 지금까지 생성된 미디 파일의 합을 받아 연주합니다.
+   * 미디파일 위치를 리턴받습니다.
+   */
+  private combineMidi(selected: Array<number>): void {
+    if (selected.length == 5) {
+      this.api.combine()
+      .then((res) => res.json())
+      .then(result => {
+        this.playMidi(result);
+      });
+    }
+  }
+
+  /**
+   * 미디파일을 연주합니다.
+   * 미디파일의 위치를 입력받습니다.
+   */
+  private async playMidi(url : string): Promise<void> {
+    this.disposeSynths();
+    const now = Tone.now() + 0.5
+    await Midi.fromUrl(url)
+    .then(midi => {
+      midi.tracks.forEach(track => {
+        const synth = new Tone.FMSynth().toDestination();
+        synth.set({envelope: {
+          attack: 0.02,
+          decay: 0.1,
+          sustain: 0.3,
+          release: 1
+        }});
+        track.notes.forEach(note => {
+          synth.triggerAttackRelease(note.name, note.duration, note.time + now, note.velocity)
+        });
+        this.synths.push(synth);
+      })
+    })
+  }
+
+  /**
+   * 모든 음악을 종료합니다.
+   */
+  private disposeSynths(): void {
+    while(this.synths.length) {
+      const synth = this.synths.shift();
+			synth.dispose();
     }
   }
 }
