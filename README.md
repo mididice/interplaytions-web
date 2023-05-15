@@ -1,6 +1,6 @@
 # Interplaytions-web
 
-![interplaytions](main.PNG)
+![interplaytions](interplaytions.PNG)
 
 ## dev start
 ```
