@@ -124,7 +124,7 @@ export class GameScene extends Phaser.Scene {
     this.blipSound = this.sound.add('blip');
 
     this.api = new Api();
-    let nowLevel = Math.floor(Math.random() * 5);
+    let nowLevel = Math.floor(Math.random() * 8);
     this.map = nowLevel;
     let tempLevel = CONST.levels[nowLevel];
     this.currentLevelArray = [];
